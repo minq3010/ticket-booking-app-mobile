@@ -5,3 +5,10 @@
     "source.sortMembers": "explicit"
   }
 }
+
+// This file is used to configure VS Code settings for the project.
+// It specifies that code actions should be applied on save, including fixing all issues,
+// organizing imports, and sorting members explicitly.
+// The "explicit" value ensures that these actions are only applied when explicitly requested,
+// rather than automatically on every save, allowing for more control over when these actions are performed.
+// This can help maintain a clean and organized codebase while avoiding unintended changes during development.        
