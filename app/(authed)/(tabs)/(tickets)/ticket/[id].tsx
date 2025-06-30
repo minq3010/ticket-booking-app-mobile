@@ -36,16 +36,16 @@ export default function TicketDetailScreen() {
       alignItems="center"
       m={20}
       p={20}
-      gap={20}
+      gap={15}
       flex={1}
       style={{
         backgroundColor: "white",
         borderRadius: 20
       }}
     >
-      <Text fontSize={50} bold>{ticket.event.name}</Text>
-      <Text fontSize={20} bold>{ticket.event.location}</Text>
-      <Text fontSize={16} color="gray">{new Date(ticket.event.date).toLocaleString()}</Text>
+      <Text numberOfLines={2} adjustsFontSizeToFit fontSize={30} bold>{ticket.event.name}</Text>
+      <Text fontSize={20} >{ticket.event.location}</Text>
+      <Text fontSize={15} color="gray">{new Date(ticket.event.date).toLocaleString()}</Text>
 
       <Image
         style={{ borderRadius: 20 }}
