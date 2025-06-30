@@ -1,4 +1,4 @@
-import { ShortcutProps } from "@/styles/shortcuts";
+import { ShortcutProps, defaultShortcuts } from "@/styles/shortcuts";
 import React, { PropsWithChildren } from "react";
 import { View, ViewProps } from "react-native";
 
