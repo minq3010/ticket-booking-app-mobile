@@ -39,4 +39,4 @@ yarn-error.*
 app-example
 
 #VCS
-.vscode
+.vscode/
