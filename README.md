@@ -1,50 +1,67 @@
-# Welcome to your Expo app 👋
+# 🎟️ Ticket Booking App - Mobile
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+## 📦 Hướng dẫn cài đặt và chạy dự án
 
-## Get started
-
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+### 1. Clone repository
 
 ```bash
-npm run reset-project
+git clone https://github.com/minq3010/ticket-booking-app-mobile.git
+cd ticket-booking-app-mobile
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 2. Tạo nhánh mới (nếu muốn phát triển tính năng riêng)
 
-## Learn more
+```bash
+git checkout -b feature/your-feature-name
+```
 
-To learn more about developing your project with Expo, look at the following resources:
+### 3. Cài đặt dependencies
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+```bash
+npm install
+```
 
-## Join the community
+> ✅ Yêu cầu: Cài đặt `Node.js`, `npm`, và `Expo CLI` (`npm install -g expo-cli` nếu chưa cài)
 
-Join our community of developers creating universal apps.
+### 4. Chạy dự án
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+```bash
+npx expo start
+```
+
+Sau đó:
+- Quét mã QR bằng ứng dụng **Expo Go** trên điện thoại
+- Hoặc chọn simulator (ví dụ: iOS hoặc Android) để chạy thử
+
+---
+
+## 🔧 Các lệnh Git cơ bản
+
+### Commit code
+
+```bash
+git add .
+git commit -m "Mô tả ngắn gọn về thay đổi"
+```
+
+### Push code lên GitHub
+
+```bash
+git push origin feature/your-feature-name
+```
+
+### Kéo code mới nhất từ branch chính
+
+```bash
+git pull origin main
+```
+
+---
+
+
+## 🤝 Hướng dẫn đóng góp
+
+1. Fork repo về GitHub cá nhân của bạn
+2. Tạo nhánh mới từ `main`
+3. Commit & push thay đổi của bạn
+4. Tạo Pull Request (PR) để gửi về repo chính
