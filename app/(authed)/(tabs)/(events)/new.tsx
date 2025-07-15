@@ -19,7 +19,6 @@ export default function NewEvent() {
   async function onSubmit() {
     try {
       setIsSubmitting(true);
-
       await eventService.createOne(name, location, date.toISOString());
       router.back();
     } catch (error) {

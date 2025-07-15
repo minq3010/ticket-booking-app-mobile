@@ -31,7 +31,7 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
       if (token && user) {
         setIsLoggedIn(true);
         setUser(JSON.parse(user));
-        router.replace("/(authed)/(tabs)/(events)");
+        router.replace({ pathname: "/(authed)/(tabs)/(events)" });
       } else {
         setIsLoggedIn(false);
       }
@@ -51,7 +51,7 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
         await AsyncStorage.setItem('token', response.data.token);
         await AsyncStorage.setItem('user', JSON.stringify(response.data.user));
         setUser(response.data.user);
-        router.replace("/(authed)/(tabs)/(events)/new");
+        router.replace({ pathname: "/(authed)/(tabs)/(events)" });
       }
     } catch (error) {
       setIsLoggedIn(false);
