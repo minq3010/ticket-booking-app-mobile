@@ -34,7 +34,16 @@ export default function TabLayout() {
       displayName: 'Scan Ticket',
       icon: 'scan',
       options: {
-        headerShown: true
+        headerShown: true 
+      }
+    },
+    {
+      showFor: [UserRole.Manager],
+      name: 'statistics',
+      displayName: 'Statistics',
+      icon: 'bar-chart',
+      options: {
+        headerShown: true,
       }
     },
     {
@@ -45,7 +54,7 @@ export default function TabLayout() {
       options: {
         headerShown: true,
       }
-    }
+    },
   ];
 
   return (

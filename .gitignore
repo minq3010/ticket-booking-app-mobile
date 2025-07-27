@@ -3,6 +3,8 @@
 # dependencies
 node_modules/
 package-lock.json
+package.json
+app.json
 
 
 # Expo
@@ -10,15 +12,6 @@ package-lock.json
 dist/
 web-build/
 expo-env.d.ts
-
-# Native
-.kotlin/
-*.orig.*
-*.jks
-*.p8
-*.p12
-*.key
-*.mobileprovision
 
 # Metro
 .metro-health-check*
@@ -37,6 +30,8 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+eslint.config.js
+tsconfig.json
 
 app-example
 

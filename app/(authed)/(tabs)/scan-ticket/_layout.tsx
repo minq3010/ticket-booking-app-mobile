@@ -13,9 +13,6 @@ import { useRouter } from "expo-router";
 import debounce from "lodash.debounce";
 export default function ScanTicketScreen() {
   const [permission, requestPermission] = useCameraPermissions();
-  const router = useRouter();
-
-  
   const handleScan = async ({ data }: BarcodeScanningResult) => {
     Vibration.vibrate();
     

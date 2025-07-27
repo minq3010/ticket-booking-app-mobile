@@ -20,6 +20,7 @@
     "@react-native-community/datetimepicker": "8.4.1",
     "@react-navigation/native": "^6.0.2",
     "axios": "^1.7.2",
+    "date-fns": "^4.1.0",
     "expo": "~53.0.13",
     "expo-camera": "~16.1.9",
     "expo-constants": "~17.1.6",
