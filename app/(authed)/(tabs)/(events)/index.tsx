@@ -1,18 +1,19 @@
-import { Button } from '@/components/Button';
-import { Divider } from '@/components/Divider';
-import { HStack } from '@/components/HStack';
-import { Text } from '@/components/Text';
-import { VStack } from '@/components/VStack';
-import { TabBarIcon } from '@/components/navigation/TabBarIcon';
-import { useAuth } from '@/context/AuthContext';
-import { eventService } from '@/services/events';
-import { ticketService } from '@/services/tickets';
-import { Event } from '@/types/event';
-import { UserRole } from '@/types/user';
-import { useFocusEffect, router, useNavigation } from 'expo-router';
-import { useCallback, useEffect, useState } from 'react';
-import { Alert, FlatList, TouchableOpacity } from 'react-native';
-
+import { Button } from "@/components/Button";
+import { Divider } from "@/components/Divider";
+import { HStack } from "@/components/HStack";
+import { Text } from "@/components/Text";
+import { VStack } from "@/components/VStack";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { useAuth } from "@/context/AuthContext";
+import { eventService } from "@/services/events";
+import { ticketService } from "@/services/tickets";
+import { Event } from "@/types/event";
+import { UserRole } from "@/types/user";
+import { useFocusEffect, router, useNavigation } from "expo-router";
+import { useCallback, useEffect, useState } from "react";
+import { Alert, FlatList, TouchableOpacity } from "react-native";
+import { format } from 'date-fns/format';
+import { vi } from "date-fns/locale";
 export default function EventsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
@@ -22,7 +23,10 @@ export default function EventsScreen() {
 
   function onGoToEventPage(id: number) {
     if (user?.role === UserRole.Manager) {
-      router.push({ pathname: "/(authed)/(tabs)/(events)/event/[id]", params: { id: id.toString() } });
+      router.push({
+        pathname: "/(authed)/(tabs)/(events)/event/[id]",
+        params: { id: id.toString() },
+      });
     }
   }
 
@@ -48,7 +52,11 @@ export default function EventsScreen() {
     }
   };
 
-  useFocusEffect(useCallback(() => { fetchEvents(); }, []));
+  useFocusEffect(
+    useCallback(() => {
+      fetchEvents();
+    }, [])
+  );
 
   useEffect(() => {
     navigation.setOptions({
@@ -59,9 +67,10 @@ export default function EventsScreen() {
 
   return (
     <VStack flex={1} p={20} pb={0} gap={20}>
-
-      <HStack alignItems='center' justifyContent='space-between'>
-        <Text fontSize={18} bold>{events.length} Events</Text>
+      <HStack alignItems="center" justifyContent="space-between">
+        <Text fontSize={18} bold>
+          {events.length} Events
+        </Text>
       </HStack>
 
       <FlatList
@@ -75,38 +84,65 @@ export default function EventsScreen() {
             gap={20}
             p={20}
             style={{
-              backgroundColor: 'white',
+              backgroundColor: "white",
               borderRadius: 20,
-            }} key={event.id}>
-
+            }}
+            key={event.id}
+          >
             <TouchableOpacity onPress={() => onGoToEventPage(event.id)}>
-              <HStack alignItems='center' justifyContent="space-between">
-                <HStack alignItems='center' style={{ flexWrap: 'wrap' }}>
-                  <Text numberOfLines={2} adjustsFontSizeToFit fontSize={20} bold>{event.name}</Text>
-                  <Text fontSize={26} bold> <TabBarIcon size={20} name="location"/> </Text>
-                  <Text fontSize={20} bold>{event.location}</Text>
+              <HStack alignItems="center" justifyContent="space-between">
+                <HStack alignItems="center" style={{ flexWrap: "wrap" }}>
+                  <Text
+                    numberOfLines={2}
+                    adjustsFontSizeToFit
+                    fontSize={20}
+                    bold
+                  >
+                    {event.name}
+                  </Text>
+                  <Text fontSize={26} bold>
+                    {" "}
+                    <TabBarIcon size={20} name="location" />{" "}
+                  </Text>
+                  <Text fontSize={20} bold>
+                    {event.location}
+                  </Text>
                 </HStack>
-                {user?.role === UserRole.Manager && <TabBarIcon size={24} name="chevron-forward" 
-                style={{ 
-                  alignSelf: 'center',
-                  position: 'absolute',
-                  right: 1,
-                  top: 0,
-                 }}/>}
+                {user?.role === UserRole.Manager && (
+                  <TabBarIcon
+                    size={24}
+                    name="chevron-forward"
+                    style={{
+                      alignSelf: "center",
+                      position: "absolute",
+                      right: 1,
+                      top: 0,
+                    }}
+                  />
+                )}
               </HStack>
+              <Text fontSize={20} bold color="gray" mt={10}>
+                Price:{" "}
+                {event.price.toLocaleString("vi-VN", {
+                  style: "currency",
+                  currency: "VND",
+                })}
+              </Text>
             </TouchableOpacity>
-
             <Divider />
-
-            <HStack justifyContent='space-between'>
-              <Text bold fontSize={16} color='gray'>Sold: {event.totalTicketsPurchased}</Text>
-              <Text bold fontSize={16} color='green'>Entered: {event.totalTicketsEntered}</Text>
+            <HStack justifyContent="space-between">
+              <Text bold fontSize={16} color="gray">
+                Sold: {event.totalTicketsPurchased}
+              </Text>
+              <Text bold fontSize={16} color="green">
+                Entered: {event.totalTicketsEntered}
+              </Text>
             </HStack>
 
             {user?.role === UserRole.Attendee && (
               <VStack>
                 <Button
-                  variant='outlined'
+                  variant="outlined"
                   disabled={isLoading}
                   onPress={() => buyTicket(event.id)}
                 >
@@ -115,18 +151,22 @@ export default function EventsScreen() {
               </VStack>
             )}
 
-            <Text fontSize={13} color='gray'>{event.date}</Text>
+            <Text fontSize={13} color="gray">
+              {format(new Date(event.date), "dd/MM/yyyy HH:mm", { locale: vi })}
+            </Text>
           </VStack>
-
         )}
       />
-
     </VStack>
   );
 }
 
 const headerRight = () => {
   return (
-    <TabBarIcon size={32} name="add-circle-outline" onPress={() => router.push('/(authed)/(tabs)/(events)/new')} />
+    <TabBarIcon
+      size={32}
+      name="add-circle-outline"
+      onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
+    />
   );
 };

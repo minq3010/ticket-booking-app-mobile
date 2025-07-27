@@ -9,6 +9,7 @@ export type Event = {
   location: string;
   totalTicketsPurchased: number;
   totalTicketsEntered: number;
+  price: number;
   date: string;
   createdAt: string;
   updatedAt: string;

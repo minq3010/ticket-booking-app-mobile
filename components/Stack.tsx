@@ -1,6 +1,6 @@
 import { ShortcutProps, defaultShortcuts } from "@/styles/shortcuts";
-import React, { PropsWithChildren } from "react";
-import { Keyboard, View, ViewProps } from "react-native";
+import { PropsWithChildren } from "react";
+import { View, ViewProps } from "react-native";
 
 
 export interface StackProps extends PropsWithChildren, ShortcutProps, ViewProps {

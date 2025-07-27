@@ -14,7 +14,7 @@ import {
   useFocusEffect,
 } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert } from "react-native";
+import { Alert, Keyboard, Pressable } from "react-native";
 
 export default function EventDetailsScreen() {
   const navigation = useNavigation();
@@ -60,6 +60,7 @@ export default function EventDetailsScreen() {
         Number(id),
         eventData.name,
         eventData.location,
+        eventData.price,
         eventData.date
       );
       router.back();
@@ -93,54 +94,70 @@ export default function EventDetailsScreen() {
   }, [navigation, onDelete]);
 
   return (
-    <VStack m={20} flex={1} gap={30}>
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Name
-        </Text>
-        <Input
-          value={eventData?.name}
-          onChangeText={(value) => updateField("name", value)}
-          placeholder="Name"
-          placeholderTextColor="darkgray"
-          h={48}
-          p={14}
-        />
-      </VStack>
+    <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
+      <VStack m={20} flex={1} gap={30}>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Name
+          </Text>
+          <Input
+            value={eventData?.name}
+            onChangeText={(value) => updateField("name", value)}
+            placeholder="Name"
+            placeholderTextColor="darkgray"
+            h={48}
+            p={14}
+          />
+        </VStack>
 
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Location
-        </Text>
-        <Input
-          value={eventData?.location}
-          onChangeText={(value) => updateField("location", value)}
-          placeholder="Name"
-          placeholderTextColor="darkgray"
-          h={48}
-          p={14}
-        />
-      </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Location
+          </Text>
+          <Input
+            value={eventData?.location}
+            onChangeText={(value) => updateField("location", value)}
+            placeholder="Name"
+            placeholderTextColor="darkgray"
+            h={48}
+            p={14}
+          />
+        </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Price
+          </Text>
+          <Input
+            value={eventData?.price?.toString()}
+            onChangeText={(value) => updateField("price", value)}
+            placeholder="Price"
+            placeholderTextColor="darkgray"
+            keyboardType="numeric"
+            h={48}
+            p={14}
+          />
+        </VStack>
 
-      <VStack gap={5}>
-        <Text ml={10} fontSize={14} color="gray">
-          Date
-        </Text>
-        <DateTimePicker
-          onChange={(date) => updateField("date", date || new Date())}
-          currentDate={new Date(eventData?.date || new Date())}
-        />
-      </VStack>
+        <VStack gap={5}>
+          <Text ml={10} fontSize={14} color="gray">
+            Date
+          </Text>
+          <DateTimePicker
+            onChange={(date) => updateField("date", date || new Date())}
+            currentDate={new Date(eventData?.date || new Date())}
+          />
+        </VStack>
 
-      <Button
-        mt={"auto"}
-        isLoading={isSubmitting}
-        disabled={isSubmitting}
-        onPress={onSubmitChanges}
-      >
-        Save Changes
-      </Button>
-    </VStack>
+        <Button
+          mt={"auto"}
+          isLoading={isSubmitting}
+          disabled={isSubmitting}
+          onPress={onSubmitChanges}
+        >
+          Save Changes
+        </Button>
+      </VStack>
+    </Pressable>
   );
 }
 

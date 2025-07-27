@@ -12,7 +12,7 @@ Api.interceptors.request.use(async config => {
 
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
 
-  return config
+  return config;
 });
 
 Api.interceptors.response.use(
