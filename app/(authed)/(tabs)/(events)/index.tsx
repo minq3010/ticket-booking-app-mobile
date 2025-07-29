@@ -116,7 +116,6 @@ export default function EventsScreen() {
                       alignSelf: "center",
                       position: "absolute",
                       right: 1,
-                      top: 0,
                     }}
                   />
                 )}

@@ -1,7 +1,12 @@
 import { Divider } from "@/components/Divider";
 import { VStack } from "@/components/VStack";
 import { useState, useEffect } from "react";
-import { View, ActivityIndicator, ScrollView } from "react-native";
+import {
+  View,
+  ActivityIndicator,
+  ScrollView,
+  RefreshControl,
+} from "react-native";
 import { Text } from "@/components/Text";
 import { Button } from "@/components/Button";
 import { Api } from "@/services/api"; // Nếu bạn muốn dùng Axios hoặc Api wrapper
@@ -20,7 +25,7 @@ export default function StatisticsScreen() {
 
   const fetchStats = async () => {
     try {
-      const res = await Api.get<Statistic>("/stats"); 
+      const res = await Api.get<Statistic>("/stats");
       console.log("Fetched stats:", res);
       setStats(res);
     } catch (err) {
@@ -36,7 +41,7 @@ export default function StatisticsScreen() {
   }, []);
 
   const handleRetry = () => {
-    setLoading
+    setLoading;
     fetchStats();
   };
 
@@ -68,7 +73,12 @@ export default function StatisticsScreen() {
   }
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+      <ScrollView
+    contentContainerStyle={{ flexGrow: 1 }}
+    refreshControl={
+      <RefreshControl refreshing={loading} onRefresh={fetchStats} />
+    }
+  >
       <VStack flex={1} m={20} gap={20}>
         <Text fontSize={22} bold>
           📊 Event Statistics
