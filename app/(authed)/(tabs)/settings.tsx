@@ -143,6 +143,7 @@ export default function ProfileScreen() {
         ...info,
         name: updatedData.name ?? name ?? "",
         phone: updatedData.phone ?? phone ?? "",
+        avatar: info?.avatar ?? "",
       });
       setEdit(false);
       Alert.alert("Success", "Update Completed!");

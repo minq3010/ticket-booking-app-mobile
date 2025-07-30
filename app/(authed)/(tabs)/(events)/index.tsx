@@ -5,38 +5,130 @@ import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useAuth } from "@/context/AuthContext";
+import { Api } from "@/services/api";
 import { eventService } from "@/services/events";
-import { ticketService } from "@/services/tickets";
 import { Event } from "@/types/event";
 import { UserRole } from "@/types/user";
-import { useFocusEffect, router, useNavigation } from "expo-router";
+import { format } from "date-fns/format";
+import { vi } from "date-fns/locale";
+import * as Linking from "expo-linking";
+import { router, useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, TouchableOpacity } from "react-native";
-import { format } from 'date-fns/format';
-import { vi } from "date-fns/locale";
 export default function EventsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
-
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
 
   function onGoToEventPage(id: number) {
-    if (user?.role === UserRole.Manager) {
-      router.push({
-        pathname: "/(authed)/(tabs)/(events)/event/[id]",
-        params: { id: id.toString() },
-      });
-    }
+    // ✅ Cả Manager và Attendee đều có thể xem event detail
+    router.push({
+      pathname: "/(authed)/(tabs)/(events)/event/[id]",
+      params: { id: id.toString() },
+    });
   }
+  
+  // // Lắng nghe deep link callback từ MoMo để chuyển về trang tickets
+  // useEffect(() => {
+  //   const handleDeepLink = (event: { url: string }) => {
+  //     console.log("📱 Deep link received:", event.url);
+
+  //     // ✅ Handle cả custom link và query params
+  //     if (
+  //       event.url.includes("payment-success") ||
+  //       event.url.includes("resultCode=0")
+  //     ) {
+  //       Alert.alert("Thành công", "Thanh toán thành công! Vé đã được tạo.", [
+  //         {
+  //           text: "Xem vé",
+  //           onPress: () => {
+  //             fetchEvents();
+  //             router.push("/(authed)/(tabs)/(tickets)");
+  //           },
+  //         },
+  //       ]);
+  //     } else if (
+  //       event.url.includes("payment-failed") ||
+  //       event.url.includes("resultCode=1")
+  //     ) {
+  //       Alert.alert("Thất bại", "Thanh toán không thành công.");
+  //     }
+  //   };
+
+  //   const subscription = Linking.addEventListener("url", handleDeepLink);
+  //   return () => subscription.remove();
+  // }, []);
 
   async function buyTicket(id: number) {
     try {
-      await ticketService.createOne(id);
-      Alert.alert("Success", "Ticket purchased successfully");
-      fetchEvents();
-    } catch (error) {
-      Alert.alert("Error", "Failed to buy ticket");
+      setIsLoading(true);
+
+      // ✅ Gọi API tạo payment
+      const res = await Api.post("/payment/momo", { eventId: id });
+
+      // ✅ Check response structure hợp lý hơn
+      if (res.status === "success" && res.url) {
+        // ✅ Check errorCode từ MoMo response
+        if (res.url.errorCode === 0 && res.url.payUrl) {
+          // ✅ Hiển thị thông báo trước khi chuyển
+          Alert.alert(
+            "🎫 Chuyển đến MoMo",
+            "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
+            [
+              {
+                text: "Hủy",
+                style: "cancel"
+              },
+              {
+                text: "Tiếp tục",
+                onPress: async () => {
+                  try {
+                    // ✅ Mở MoMo app/web
+                    const canOpen = await Linking.canOpenURL(res.url.payUrl);
+                    if (canOpen) {
+                      await Linking.openURL(res.url.payUrl);
+                    } else {
+                      throw new Error("Không thể mở link thanh toán");
+                    }
+                  } catch (linkError) {
+                    console.error("❌ Link error:", linkError);
+                    Alert.alert("❌ Lỗi", "Không thể mở ứng dụng MoMo. Vui lòng thử lại.");
+                  }
+                }
+              }
+            ]
+          );
+        } else {
+          // ✅ MoMo trả về lỗi
+          const errorMsg = res.url.message || `Lỗi MoMo: ${res.url.errorCode}`;
+          Alert.alert("❌ Lỗi thanh toán", errorMsg);
+        }
+      } else {
+        // ✅ Server response không hợp lệ
+        Alert.alert("❌ Lỗi", "Server không thể tạo đơn thanh toán");
+      }
+
+    } catch (error: any) {
+      console.error("💥 Payment error:", error);
+      
+      // ✅ Xử lý các loại lỗi cụ thể
+      let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
+      
+      if (error.response?.status === 401) {
+        errorMessage = "Phiên đăng nhập đã hết hạn";
+      } else if (error.response?.status === 404) {
+        errorMessage = "Sự kiện không tồn tại";
+      } else if (error.response?.status >= 500) {
+        errorMessage = "Lỗi server. Vui lòng thử lại sau";
+      } else if (error.message?.includes("Network")) {
+        errorMessage = "Không có kết nối mạng";
+      }
+      
+      Alert.alert("❌ Lỗi", errorMessage);
+      
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -44,8 +136,10 @@ export default function EventsScreen() {
     try {
       setIsLoading(true);
       const response = await eventService.getAll();
-      setEvents(response.data);
+      const eventList = Array.isArray(response.data) ? response.data : [];
+      setEvents(eventList);
     } catch (error) {
+      setEvents([]);
       Alert.alert("Error", "Failed to fetch events");
     } finally {
       setIsLoading(false);
@@ -108,17 +202,16 @@ export default function EventsScreen() {
                     {event.location}
                   </Text>
                 </HStack>
-                {user?.role === UserRole.Manager && (
-                  <TabBarIcon
-                    size={24}
-                    name="chevron-forward"
-                    style={{
-                      alignSelf: "center",
-                      position: "absolute",
-                      right: 1,
-                    }}
-                  />
-                )}
+                {/* ✅ Hiển thị chevron cho tất cả user */}
+                <TabBarIcon
+                  size={24}
+                  name="chevron-forward"
+                  style={{
+                    alignSelf: "center",
+                    position: "absolute",
+                    right: 1,
+                  }}
+                />
               </HStack>
               <Text fontSize={20} bold color="gray" mt={10}>
                 Price:{" "}

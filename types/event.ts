@@ -7,6 +7,8 @@ export type Event = {
   id: number;
   name: string;
   location: string;
+  description?: string;
+  imageUrl?: string;
   totalTicketsPurchased: number;
   totalTicketsEntered: number;
   price: number;
