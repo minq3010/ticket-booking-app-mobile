@@ -3,6 +3,7 @@ import { Divider } from "@/components/Divider";
 import { HStack } from "@/components/HStack";
 import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
+import { Input } from "@/components/Input";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useAuth } from "@/context/AuthContext";
 import { Api } from "@/services/api";
@@ -14,15 +15,16 @@ import { vi } from "date-fns/locale";
 import * as Linking from "expo-linking";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, TouchableOpacity } from "react-native";
+import { Alert, FlatList, TouchableOpacity, Keyboard } from "react-native";
 export default function EventsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
 
   function onGoToEventPage(id: number) {
-    // ✅ Cả Manager và Attendee đều có thể xem event detail
+    //  Cả Manager và Attendee đều có thể xem event detail
     router.push({
       pathname: "/(authed)/(tabs)/(events)/event/[id]",
       params: { id: id.toString() },
@@ -34,7 +36,7 @@ export default function EventsScreen() {
   //   const handleDeepLink = (event: { url: string }) => {
   //     console.log("📱 Deep link received:", event.url);
 
-  //     // ✅ Handle cả custom link và query params
+  //     //  Handle cả custom link và query params
   //     if (
   //       event.url.includes("payment-success") ||
   //       event.url.includes("resultCode=0")
@@ -60,82 +62,89 @@ export default function EventsScreen() {
   //   return () => subscription.remove();
   // }, []);
 
-  async function buyTicket(id: number) {
+  // async function buyTicket(id: number) {
+  //   try {
+  //     setIsLoading(true);
+
+  //     //  Gọi API tạo payment
+  //     const res = await Api.post("/payment/momo", { eventId: id });
+
+  //     //  Check response structure hợp lý hơn
+  //     if (res.status === 200 && res.data) {
+  //       //  Check errorCode từ MoMo response
+  //       if (res.data.errorCode === 0 && res.data.payUrl) {
+  //         //  Hiển thị thông báo trước khi chuyển
+  //         Alert.alert(
+  //           "🎫 Chuyển đến MoMo",
+  //           "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
+  //           [
+  //             {
+  //               text: "Hủy",
+  //               style: "cancel"
+  //             },
+  //             {
+  //               text: "Tiếp tục",
+  //               onPress: async () => {
+  //                 try {
+  //                   //  Mở MoMo app/web
+  //                   const canOpen = await Linking.canOpenURL(res.data.payUrl);
+  //                   if (canOpen) {
+  //                     await Linking.openURL(res.data.payUrl);
+  //                   } else {
+  //                     throw new Error("Không thể mở link thanh toán");
+  //                   }
+  //                 } catch (linkError) {
+  //                   console.error(" Link error:", linkError);
+  //                   Alert.alert(" Lỗi", "Không thể mở ứng dụng MoMo. Vui lòng thử lại.");
+  //                 }
+  //               }
+  //             }
+  //           ]
+  //         );
+  //       } else {
+  //         //  MoMo trả về lỗi
+  //         const errorMsg = res.data.message || `Lỗi MoMo: ${res.data.errorCode}`;
+  //         Alert.alert(" Lỗi thanh toán", errorMsg);
+  //       }
+  //     } else {
+  //       //  Server response không hợp lệ
+  //       Alert.alert(" Lỗi", "Server không thể tạo đơn thanh toán");
+  //     }
+
+  //   } catch (error: any) {
+  //     console.error("💥 Payment error:", error);
+      
+  //     //  Xử lý các loại lỗi cụ thể
+  //     let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
+      
+  //     if (error.response?.status === 401) {
+  //       errorMessage = "Phiên đăng nhập đã hết hạn";
+  //     } else if (error.response?.status === 404) {
+  //       errorMessage = "Sự kiện không tồn tại";
+  //     } else if (error.response?.status >= 500) {
+  //       errorMessage = "Lỗi server. Vui lòng thử lại sau";
+  //     } else if (error.message?.includes("Network")) {
+  //       errorMessage = "Không có kết nối mạng";
+  //     }
+      
+  //     Alert.alert(" Lỗi", errorMessage);
+      
+  //   } finally {
+  //     setIsLoading(false);
+  //   }
+  // }
+
+  const fetchEvents = async (query?: string) => {
     try {
       setIsLoading(true);
-
-      // ✅ Gọi API tạo payment
-      const res = await Api.post("/payment/momo", { eventId: id });
-
-      // ✅ Check response structure hợp lý hơn
-      if (res.status === "success" && res.url) {
-        // ✅ Check errorCode từ MoMo response
-        if (res.url.errorCode === 0 && res.url.payUrl) {
-          // ✅ Hiển thị thông báo trước khi chuyển
-          Alert.alert(
-            "🎫 Chuyển đến MoMo",
-            "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
-            [
-              {
-                text: "Hủy",
-                style: "cancel"
-              },
-              {
-                text: "Tiếp tục",
-                onPress: async () => {
-                  try {
-                    // ✅ Mở MoMo app/web
-                    const canOpen = await Linking.canOpenURL(res.url.payUrl);
-                    if (canOpen) {
-                      await Linking.openURL(res.url.payUrl);
-                    } else {
-                      throw new Error("Không thể mở link thanh toán");
-                    }
-                  } catch (linkError) {
-                    console.error("❌ Link error:", linkError);
-                    Alert.alert("❌ Lỗi", "Không thể mở ứng dụng MoMo. Vui lòng thử lại.");
-                  }
-                }
-              }
-            ]
-          );
-        } else {
-          // ✅ MoMo trả về lỗi
-          const errorMsg = res.url.message || `Lỗi MoMo: ${res.url.errorCode}`;
-          Alert.alert("❌ Lỗi thanh toán", errorMsg);
-        }
+      let response;
+      if (query && query.trim()) {
+        // Tìm kiếm với query
+        response = await eventService.searchByName(query.trim());
       } else {
-        // ✅ Server response không hợp lệ
-        Alert.alert("❌ Lỗi", "Server không thể tạo đơn thanh toán");
+        // Load tất cả events
+        response = await eventService.getAll();
       }
-
-    } catch (error: any) {
-      console.error("💥 Payment error:", error);
-      
-      // ✅ Xử lý các loại lỗi cụ thể
-      let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
-      
-      if (error.response?.status === 401) {
-        errorMessage = "Phiên đăng nhập đã hết hạn";
-      } else if (error.response?.status === 404) {
-        errorMessage = "Sự kiện không tồn tại";
-      } else if (error.response?.status >= 500) {
-        errorMessage = "Lỗi server. Vui lòng thử lại sau";
-      } else if (error.message?.includes("Network")) {
-        errorMessage = "Không có kết nối mạng";
-      }
-      
-      Alert.alert("❌ Lỗi", errorMessage);
-      
-    } finally {
-      setIsLoading(false);
-    }
-  }
-
-  const fetchEvents = async () => {
-    try {
-      setIsLoading(true);
-      const response = await eventService.getAll();
       const eventList = Array.isArray(response.data) ? response.data : [];
       setEvents(eventList);
     } catch (error) {
@@ -144,6 +153,17 @@ export default function EventsScreen() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleSearch = () => {
+    Keyboard.dismiss();
+    fetchEvents(searchQuery);
+  };
+
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    fetchEvents(); 
+    Keyboard.dismiss();
   };
 
   useFocusEffect(
@@ -160,7 +180,57 @@ export default function EventsScreen() {
   }, [navigation, user]);
 
   return (
-    <VStack flex={1} p={20} pb={0} gap={20}>
+    <VStack flex={1} p={20} pb={0} gap={10}>
+      {/* Search Bar */}
+      <HStack gap={5} alignItems="center">
+        <VStack flex={1} >
+          <Input
+            placeholder="Search events..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onSubmitEditing={handleSearch}
+            returnKeyType="search"
+            h={40}
+            pl={14}
+            p={9}
+          />
+        </VStack>
+        <TouchableOpacity
+          onPress={handleSearch}
+          style={{
+            backgroundColor: "#000",
+            borderRadius: 15,
+            padding: 10,
+            minWidth: 40,
+            minHeight: 40,
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Text color="white">
+            <TabBarIcon size={20} name="search" />
+          </Text>
+        </TouchableOpacity>
+        {searchQuery.length > 0 && (
+          <TouchableOpacity
+            onPress={handleClearSearch}
+            style={{
+              backgroundColor: "gray",
+              borderRadius: 15,
+              padding: 10,
+              minWidth: 40,
+              minHeight: 40,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text fontSize={14}>
+              <TabBarIcon size={20} name="close" />
+            </Text>
+          </TouchableOpacity>
+        )}
+      </HStack>
+
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold>
           {events.length} Events
@@ -202,7 +272,7 @@ export default function EventsScreen() {
                     {event.location}
                   </Text>
                 </HStack>
-                {/* ✅ Hiển thị chevron cho tất cả user */}
+                {/*  Hiển thị chevron cho tất cả user */}
                 <TabBarIcon
                   size={24}
                   name="chevron-forward"
@@ -231,7 +301,7 @@ export default function EventsScreen() {
               </Text>
             </HStack>
 
-            {user?.role === UserRole.Attendee && (
+            {/* {user?.role === UserRole.Attendee && (
               <VStack>
                 <Button
                   variant="outlined"
@@ -241,7 +311,7 @@ export default function EventsScreen() {
                   Buy Ticket
                 </Button>
               </VStack>
-            )}
+            )} */}
 
             <Text fontSize={13} color="gray">
               {format(new Date(event.date), "dd/MM/yyyy HH:mm", { locale: vi })}

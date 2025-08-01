@@ -63,15 +63,15 @@ export default function TicketScreen() {
           >
             <VStack
               gap={20}
-              h={120}
+              h={140}
               key={ticket.id}
               style={{ opacity: ticket.entered ? 0.5 : 1 }}
             >
               <HStack>
                 <VStack
-                  h={120}
+                  h={130}
                   w={"69%"}
-                  p={20}
+                  p={15}
                   justifyContent="space-between"
                   style={{
                     backgroundColor: "white",
@@ -107,7 +107,7 @@ export default function TicketScreen() {
                 </VStack>
 
                 <VStack
-                  h={110}
+                  h={120}
                   w={"1%"}
                   style={{
                     alignSelf: "center",
@@ -118,7 +118,7 @@ export default function TicketScreen() {
                 />
 
                 <VStack
-                  h={120}
+                  h={130}
                   w={"29%"}
                   justifyContent="center"
                   alignItems="center"

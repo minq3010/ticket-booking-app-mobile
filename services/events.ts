@@ -17,6 +17,10 @@ async function getAll(): Promise<EventListResponse> {
   return Api.get("/event");
 }
 
+async function searchByName(name: string): Promise<EventListResponse> {
+  return Api.get(`/event?name=${encodeURIComponent(name)}`);
+}
+
 async function updateOne(id: number, name: string, location: string, price: number, date: string, description?: string): Promise<EventResponse> {
   return Api.put(`/event/${id}`, { name, location, price, date, description });
 } 
@@ -34,6 +38,7 @@ const eventService = {
   createOneWithImage,
   getOne,
   getAll,
+  searchByName,
   updateOne,
   updateOneWithImage,
   deleteOne,
