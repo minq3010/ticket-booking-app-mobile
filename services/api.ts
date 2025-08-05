@@ -10,7 +10,12 @@ const url =
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 
 Api.interceptors.request.use(async (config) => {
-  const token = await AsyncStorage.getItem("token");
+  let token: string | null = null;
+  if (Platform.OS === "web") {
+    token = localStorage.getItem("token");
+  } else {
+    token = await AsyncStorage.getItem("token");
+  }
 
   if (token) config.headers.set("Authorization", `Bearer ${token}`);
 

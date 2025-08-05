@@ -30,7 +30,6 @@ import * as Linking from "expo-linking";
 import * as ImagePicker from "expo-image-picker";
 import { format } from "date-fns/format";
 import { vi } from "date-fns/locale";
-import { Divider } from "@/components/Divider";
 
 export default function EventDetailsScreen() {
   const navigation = useNavigation();
@@ -343,7 +342,7 @@ export default function EventDetailsScreen() {
             <RefreshControl
               refreshing={isRefreshing}
               onRefresh={onRefresh}
-              colors={['#000']}
+              colors={["#000"]}
               tintColor="#000"
             />
           }
@@ -567,6 +566,21 @@ export default function EventDetailsScreen() {
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
                 Price
+              </Text>
+              <Input
+                value={eventData?.price?.toString()}
+                onChangeText={(value) => updateField("price", value)}
+                placeholder="Price"
+                placeholderTextColor="darkgray"
+                keyboardType="numeric"
+                h={48}
+                p={14}
+              />
+            </VStack>
+
+            <VStack gap={5}>
+              <Text ml={10} fontSize={14} color="gray">
+                Quantity
               </Text>
               <Input
                 value={eventData?.price?.toString()}

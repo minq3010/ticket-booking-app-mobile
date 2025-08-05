@@ -18,10 +18,15 @@ async function validateOne(ticketId: number, ownerId: number): Promise<TicketRes
   return Api.post("/ticket/validate", { ticketId, ownerId });
 }
 
+async function deleteOne(id: number): Promise<ApiResponse<null>> {
+  return Api.delete(`/ticket/${id}`);
+}
+
 const ticketService = {
   createOne,
   getOne,
   getAll,
+  deleteOne,
   validateOne,
 }
 
