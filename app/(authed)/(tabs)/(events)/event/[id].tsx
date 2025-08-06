@@ -148,13 +148,17 @@ export default function EventDetailsScreen() {
       setIsLoading(false);
     }
   }
+  // Tính số vé còn lại
+  const ticketsLeft =
+    eventData && typeof eventData.maxTickets === "number"
+      ? Math.max(0, eventData.maxTickets - eventData.totalTicketsPurchased)
+      : 0;
 
   function updateField(field: keyof Event, value: string | Date) {
     setEventData((prev) => {
       if (!prev) return prev;
 
-      // ✅ Handle price as number conversion
-      if (field === "price") {
+      if (field === "price" || field === "maxTickets") {
         const numericValue = parseInt(value as string) || 0;
         return { ...prev, [field]: numericValue };
       }
@@ -252,6 +256,7 @@ export default function EventDetailsScreen() {
           eventData.name,
           eventData.location,
           eventData.price,
+          eventData.maxTickets || 0,
           new Date(eventData.date).toISOString(),
           eventData.description
         );
@@ -369,18 +374,14 @@ export default function EventDetailsScreen() {
 
           {/* Event Info Card */}
           <VStack style={styles.eventInfoCard}>
-            <Text fontSize={24} bold color="#000" style={styles.eventTitle}>
-              {eventData.name}
-            </Text>
-
-            <VStack gap={16} mt={20}>
+            <VStack gap={16} mt={5}>
               <HStack alignItems="center" gap={12} style={styles.infoRow}>
                 <VStack style={styles.iconContainer}>
                   <TabBarIcon size={20} name="location" color="#000" />
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Địa điểm
+                    Location
                   </Text>
                   <Text fontSize={16} color="#000" style={styles.infoValue}>
                     {eventData.location}
@@ -394,12 +395,12 @@ export default function EventDetailsScreen() {
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Thời gian
+                    Time
                   </Text>
                   <Text fontSize={16} color="#000" style={styles.infoValue}>
                     {format(
                       new Date(eventData.date),
-                      "dd/MM/yyyy 'lúc' HH:mm",
+                      "dd/MM/yyyy 'at' HH:mm",
                       { locale: vi }
                     )}
                   </Text>
@@ -412,7 +413,7 @@ export default function EventDetailsScreen() {
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Giá vé
+                    Price
                   </Text>
                   <Text
                     fontSize={18}
@@ -433,7 +434,7 @@ export default function EventDetailsScreen() {
             {eventData.description && (
               <VStack mt={24} style={styles.descriptionSection}>
                 <Text fontSize={16} bold color="#000" mb={12}>
-                  Mô tả sự kiện
+                  Description
                 </Text>
                 <Text fontSize={14} color="#333" style={styles.descriptionText}>
                   {eventData.description}
@@ -448,7 +449,11 @@ export default function EventDetailsScreen() {
                   {eventData.totalTicketsPurchased}
                 </Text>
                 <Text fontSize={12} color="#666" mt={4}>
-                  Vé đã bán
+                  Tickets sold
+                </Text>
+                <Text fontSize={14} color="#2E7D32" mt={2}>
+                  {eventData.maxTickets - eventData.totalTicketsPurchased} tickets
+                  remaining
                 </Text>
               </VStack>
               <VStack style={styles.statDivider} />
@@ -457,7 +462,7 @@ export default function EventDetailsScreen() {
                   {eventData.totalTicketsEntered}
                 </Text>
                 <Text fontSize={12} color="#666" mt={4}>
-                  Đã check-in
+                  Tickets checked-in
                 </Text>
               </VStack>
             </HStack>
@@ -465,12 +470,19 @@ export default function EventDetailsScreen() {
             {/* Buy Ticket Button */}
             <Button
               isLoading={isLoading}
-              disabled={isLoading}
+              disabled={isLoading || ticketsLeft === 0}
               onPress={buyTicket}
-              style={styles.buyButton}
+              style={{
+                ...styles.buyButton,
+                ...(ticketsLeft === 0 && { backgroundColor: "#ccc" }),
+              }}
             >
               <Text fontSize={16} bold color="#fff">
-                {isLoading ? "Đang xử lý..." : "🎫 Mua vé ngay"}
+                {ticketsLeft === 0
+                  ? "Sold out"
+                  : isLoading
+                  ? "Processing..."
+                  : "🎫 Buy Ticket Now"}
               </Text>
             </Button>
           </VStack>
@@ -583,9 +595,9 @@ export default function EventDetailsScreen() {
                 Quantity
               </Text>
               <Input
-                value={eventData?.price?.toString()}
-                onChangeText={(value) => updateField("price", value)}
-                placeholder="Price"
+                value={eventData?.maxTickets?.toString()}
+                onChangeText={(value) => updateField("maxTickets", value)}
+                placeholder="Max Tickets"
                 placeholderTextColor="darkgray"
                 keyboardType="numeric"
                 h={48}

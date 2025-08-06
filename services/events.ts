@@ -1,8 +1,8 @@
 import { EventResponse, EventListResponse } from "@/types/event";
 import { Api } from "./api";
 
-async function createOne(name: string, location: string, price: number, date: string, description?: string): Promise<EventResponse> {
-  return Api.post("/event", { name, location, price, date, description });
+async function createOne(name: string, location: string, price: number, maxTickets: number, date: string, description?: string): Promise<EventResponse> {
+  return Api.post("/event", { name, location, price, maxTickets, date, description });
 }
 
 async function createOneWithImage(formData: FormData): Promise<EventResponse> {
@@ -21,9 +21,9 @@ async function searchByName(name: string): Promise<EventListResponse> {
   return Api.get(`/event?name=${encodeURIComponent(name)}`);
 }
 
-async function updateOne(id: number, name: string, location: string, price: number, date: string, description?: string): Promise<EventResponse> {
-  return Api.put(`/event/${id}`, { name, location, price, date, description });
-} 
+async function updateOne(id: number, name: string, location: string, price: number, maxTickets: number, date: string, description?: string): Promise<EventResponse> {
+  return Api.put(`/event/${id}`, { name, location, price, maxTickets, date, description });
+}
 
 async function updateOneWithImage(id: number, formData: FormData): Promise<EventResponse> {
   return Api.put(`/event/${id}`, formData);

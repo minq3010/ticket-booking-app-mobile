@@ -31,109 +31,7 @@ export default function EventsScreen() {
     });
   }
   
-  // // Lắng nghe deep link callback từ MoMo để chuyển về trang tickets
-  // useEffect(() => {
-  //   const handleDeepLink = (event: { url: string }) => {
-  //     console.log("📱 Deep link received:", event.url);
-
-  //     //  Handle cả custom link và query params
-  //     if (
-  //       event.url.includes("payment-success") ||
-  //       event.url.includes("resultCode=0")
-  //     ) {
-  //       Alert.alert("Thành công", "Thanh toán thành công! Vé đã được tạo.", [
-  //         {
-  //           text: "Xem vé",
-  //           onPress: () => {
-  //             fetchEvents();
-  //             router.push("/(authed)/(tabs)/(tickets)");
-  //           },
-  //         },
-  //       ]);
-  //     } else if (
-  //       event.url.includes("payment-failed") ||
-  //       event.url.includes("resultCode=1")
-  //     ) {
-  //       Alert.alert("Thất bại", "Thanh toán không thành công.");
-  //     }
-  //   };
-
-  //   const subscription = Linking.addEventListener("url", handleDeepLink);
-  //   return () => subscription.remove();
-  // }, []);
-
-  // async function buyTicket(id: number) {
-  //   try {
-  //     setIsLoading(true);
-
-  //     //  Gọi API tạo payment
-  //     const res = await Api.post("/payment/momo", { eventId: id });
-
-  //     //  Check response structure hợp lý hơn
-  //     if (res.status === 200 && res.data) {
-  //       //  Check errorCode từ MoMo response
-  //       if (res.data.errorCode === 0 && res.data.payUrl) {
-  //         //  Hiển thị thông báo trước khi chuyển
-  //         Alert.alert(
-  //           "🎫 Chuyển đến MoMo",
-  //           "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
-  //           [
-  //             {
-  //               text: "Hủy",
-  //               style: "cancel"
-  //             },
-  //             {
-  //               text: "Tiếp tục",
-  //               onPress: async () => {
-  //                 try {
-  //                   //  Mở MoMo app/web
-  //                   const canOpen = await Linking.canOpenURL(res.data.payUrl);
-  //                   if (canOpen) {
-  //                     await Linking.openURL(res.data.payUrl);
-  //                   } else {
-  //                     throw new Error("Không thể mở link thanh toán");
-  //                   }
-  //                 } catch (linkError) {
-  //                   console.error(" Link error:", linkError);
-  //                   Alert.alert(" Lỗi", "Không thể mở ứng dụng MoMo. Vui lòng thử lại.");
-  //                 }
-  //               }
-  //             }
-  //           ]
-  //         );
-  //       } else {
-  //         //  MoMo trả về lỗi
-  //         const errorMsg = res.data.message || `Lỗi MoMo: ${res.data.errorCode}`;
-  //         Alert.alert(" Lỗi thanh toán", errorMsg);
-  //       }
-  //     } else {
-  //       //  Server response không hợp lệ
-  //       Alert.alert(" Lỗi", "Server không thể tạo đơn thanh toán");
-  //     }
-
-  //   } catch (error: any) {
-  //     console.error("💥 Payment error:", error);
-      
-  //     //  Xử lý các loại lỗi cụ thể
-  //     let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
-      
-  //     if (error.response?.status === 401) {
-  //       errorMessage = "Phiên đăng nhập đã hết hạn";
-  //     } else if (error.response?.status === 404) {
-  //       errorMessage = "Sự kiện không tồn tại";
-  //     } else if (error.response?.status >= 500) {
-  //       errorMessage = "Lỗi server. Vui lòng thử lại sau";
-  //     } else if (error.message?.includes("Network")) {
-  //       errorMessage = "Không có kết nối mạng";
-  //     }
-      
-  //     Alert.alert(" Lỗi", errorMessage);
-      
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // }
-
+  
   const fetchEvents = async (query?: string) => {
     try {
       setIsLoading(true);
@@ -154,7 +52,7 @@ export default function EventsScreen() {
       setIsLoading(false);
     }
   };
-
+  
   const handleSearch = () => {
     Keyboard.dismiss();
     fetchEvents(searchQuery);
@@ -171,7 +69,7 @@ export default function EventsScreen() {
       fetchEvents();
     }, [])
   );
-
+  
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "Events",
@@ -193,7 +91,7 @@ export default function EventsScreen() {
             h={40}
             pl={14}
             p={9}
-          />
+            />
         </VStack>
         <TouchableOpacity
           onPress={handleSearch}
@@ -206,7 +104,7 @@ export default function EventsScreen() {
             alignItems: "center",
             justifyContent: "center",
           }}
-        >
+          >
           <Text color="white">
             <TabBarIcon size={20} name="search" />
           </Text>
@@ -223,7 +121,7 @@ export default function EventsScreen() {
               alignItems: "center",
               justifyContent: "center",
             }}
-          >
+            >
             <Text fontSize={14}>
               <TabBarIcon size={20} name="close" />
             </Text>
@@ -245,13 +143,13 @@ export default function EventsScreen() {
         ItemSeparatorComponent={() => <VStack h={20} />}
         renderItem={({ item: event }) => (
           <VStack
-            gap={20}
-            p={20}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 20,
-            }}
-            key={event.id}
+          gap={20}
+          p={20}
+          style={{
+            backgroundColor: "white",
+            borderRadius: 20,
+          }}
+          key={event.id}
           >
             <TouchableOpacity onPress={() => onGoToEventPage(event.id)}>
               <HStack alignItems="center" justifyContent="space-between">
@@ -261,7 +159,7 @@ export default function EventsScreen() {
                     adjustsFontSizeToFit
                     fontSize={20}
                     bold
-                  >
+                    >
                     {event.name}
                   </Text>
                   <Text fontSize={26} bold>
@@ -281,7 +179,7 @@ export default function EventsScreen() {
                     position: "absolute",
                     right: 1,
                   }}
-                />
+                  />
               </HStack>
               <Text fontSize={20} bold color="gray" mt={10}>
                 Price:{" "}
@@ -303,22 +201,22 @@ export default function EventsScreen() {
 
             {/* {user?.role === UserRole.Attendee && (
               <VStack>
-                <Button
-                  variant="outlined"
-                  disabled={isLoading}
-                  onPress={() => buyTicket(event.id)}
-                >
-                  Buy Ticket
-                </Button>
+              <Button
+              variant="outlined"
+              disabled={isLoading}
+              onPress={() => buyTicket(event.id)}
+              >
+              Buy Ticket
+              </Button>
               </VStack>
-            )} */}
+              )} */}
 
             <Text fontSize={13} color="gray">
               {format(new Date(event.date), "dd/MM/yyyy HH:mm", { locale: vi })}
             </Text>
           </VStack>
         )}
-      />
+        />
     </VStack>
   );
 }
@@ -326,9 +224,112 @@ export default function EventsScreen() {
 const headerRight = () => {
   return (
     <TabBarIcon
-      size={32}
-      name="add-circle-outline"
-      onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
+    size={32}
+    name="add-circle-outline"
+    onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
     />
   );
 };
+
+// // Lắng nghe deep link callback từ MoMo để chuyển về trang tickets
+// useEffect(() => {
+//   const handleDeepLink = (event: { url: string }) => {
+//     console.log("📱 Deep link received:", event.url);
+
+//     //  Handle cả custom link và query params
+//     if (
+//       event.url.includes("payment-success") ||
+//       event.url.includes("resultCode=0")
+//     ) {
+//       Alert.alert("Thành công", "Thanh toán thành công! Vé đã được tạo.", [
+//         {
+//           text: "Xem vé",
+//           onPress: () => {
+//             fetchEvents();
+//             router.push("/(authed)/(tabs)/(tickets)");
+//           },
+//         },
+//       ]);
+//     } else if (
+//       event.url.includes("payment-failed") ||
+//       event.url.includes("resultCode=1")
+//     ) {
+//       Alert.alert("Thất bại", "Thanh toán không thành công.");
+//     }
+//   };
+
+//   const subscription = Linking.addEventListener("url", handleDeepLink);
+//   return () => subscription.remove();
+// }, []);
+
+// async function buyTicket(id: number) {
+//   try {
+//     setIsLoading(true);
+
+//     //  Gọi API tạo payment
+//     const res = await Api.post("/payment/momo", { eventId: id });
+
+//     //  Check response structure hợp lý hơn
+//     if (res.status === 200 && res.data) {
+//       //  Check errorCode từ MoMo response
+//       if (res.data.errorCode === 0 && res.data.payUrl) {
+//         //  Hiển thị thông báo trước khi chuyển
+//         Alert.alert(
+//           "🎫 Chuyển đến MoMo",
+//           "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
+//           [
+//             {
+//               text: "Hủy",
+//               style: "cancel"
+//             },
+//             {
+//               text: "Tiếp tục",
+//               onPress: async () => {
+//                 try {
+//                   //  Mở MoMo app/web
+//                   const canOpen = await Linking.canOpenURL(res.data.payUrl);
+//                   if (canOpen) {
+//                     await Linking.openURL(res.data.payUrl);
+//                   } else {
+//                     throw new Error("Không thể mở link thanh toán");
+//                   }
+//                 } catch (linkError) {
+//                   console.error(" Link error:", linkError);
+//                   Alert.alert(" Lỗi", "Không thể mở ứng dụng MoMo. Vui lòng thử lại.");
+//                 }
+//               }
+//             }
+//           ]
+//         );
+//       } else {
+//         //  MoMo trả về lỗi
+//         const errorMsg = res.data.message || `Lỗi MoMo: ${res.data.errorCode}`;
+//         Alert.alert(" Lỗi thanh toán", errorMsg);
+//       }
+//     } else {
+//       //  Server response không hợp lệ
+//       Alert.alert(" Lỗi", "Server không thể tạo đơn thanh toán");
+//     }
+
+//   } catch (error: any) {
+//     console.error("💥 Payment error:", error);
+    
+//     //  Xử lý các loại lỗi cụ thể
+//     let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
+    
+//     if (error.response?.status === 401) {
+//       errorMessage = "Phiên đăng nhập đã hết hạn";
+//     } else if (error.response?.status === 404) {
+//       errorMessage = "Sự kiện không tồn tại";
+//     } else if (error.response?.status >= 500) {
+//       errorMessage = "Lỗi server. Vui lòng thử lại sau";
+//     } else if (error.message?.includes("Network")) {
+//       errorMessage = "Không có kết nối mạng";
+//     }
+    
+//     Alert.alert(" Lỗi", errorMessage);
+    
+//   } finally {
+//     setIsLoading(false);
+//   }
+// }

@@ -12,6 +12,7 @@ export type Event = {
   totalTicketsPurchased: number;
   totalTicketsEntered: number;
   price: number;
+  maxTickets: number;
   date: string;
   createdAt: string;
   updatedAt: string;
