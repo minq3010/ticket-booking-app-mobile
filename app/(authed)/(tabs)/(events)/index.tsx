@@ -32,7 +32,6 @@ export default function EventsScreen() {
   const [searchQuery, setSearchQuery] = useState("");
   const [maxPrice, setMaxPrice] = useState(10000000);
   const [filterVisible, setFilterVisible] = useState(false);
-
   function onGoToEventPage(id: number) {
     router.push({
       pathname: "/(authed)/(tabs)/(events)/event/[id]",
