@@ -1,6 +1,6 @@
-# 🎟️ Ticket Booking App - Mobile
+# Ticket Booking App - Mobile
 
-## 📦 Hướng dẫn cài đặt và chạy dự án
+## Hướng dẫn cài đặt và chạy dự án
 
 ### 1. Clone repository
 
@@ -21,7 +21,7 @@ git checkout -b feature/your-feature-name
 npm install
 ```
 
-> ✅ Yêu cầu: Cài đặt `Node.js`, `npm`, và `Expo CLI` (`npm install -g expo-cli` nếu chưa cài)
+>  Yêu cầu: Cài đặt `Node.js`, `npm`, và `Expo CLI` (`npm install -g expo-cli` nếu chưa cài)
 
 ### 4. Chạy dự án
 
@@ -35,7 +35,7 @@ Sau đó:
 
 ---
 
-## 🔧 Các lệnh Git cơ bản
+##  Các lệnh Git cơ bản
 
 ### Commit code
 
@@ -55,13 +55,3 @@ git push origin feature/your-feature-name
 ```bash
 git pull origin main
 ```
-
----
-
-
-## 🤝 Hướng dẫn đóng góp
-
-1. Fork repo về GitHub cá nhân của bạn
-2. Tạo nhánh mới từ `main`
-3. Commit & push thay đổi của bạn
-4. Tạo Pull Request (PR) để gửi về repo chính
