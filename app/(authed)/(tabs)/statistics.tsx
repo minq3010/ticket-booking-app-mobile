@@ -49,7 +49,7 @@ export default function StatisticsScreen() {
 
   const fetchEvents = async () => {
     try {
-      const res = await Api.get("/event"); // Đổi thành endpoint trả về danh sách sự kiện
+      const res = await Api.get("/event"); 
       if (Array.isArray(res)) {
         setEvents(res);
       } else if (res.data && Array.isArray(res.data)) {
@@ -58,7 +58,7 @@ export default function StatisticsScreen() {
         setEvents([]);
       }
     } catch (err) {
-      console.error("❌ Event fetch error:", err);
+      console.error("Event fetch error:", err);
       setEvents([]);
     }
   };
@@ -188,10 +188,10 @@ export default function StatisticsScreen() {
     <View style={styles.header}>
       <VStack gap={4} p={16}>
         <Text fontSize={24} bold color="white">
-          📊 Thống Kê Sự Kiện
+          📊 Event Statistics
         </Text>
         <Text fontSize={14} color="#e6f2ff">
-          Quản lý và theo dõi hiệu suất bán vé
+          Manage and track ticket sales performance
         </Text>
       </VStack>
     </View>
@@ -214,7 +214,7 @@ export default function StatisticsScreen() {
             bold
             color={activeTab === "overview" ? "white" : "#6b7280"}
           >
-            📈 Tổng Quan
+            📈 Overview 
           </Text>
         </TouchableOpacity>
 
@@ -232,7 +232,7 @@ export default function StatisticsScreen() {
             bold
             color={activeTab === "detail" ? "white" : "#6b7280"}
           >
-            🎫 Chi Tiết
+            🎫 Details
           </Text>
         </TouchableOpacity>
       </HStack>
@@ -242,32 +242,20 @@ export default function StatisticsScreen() {
   const renderOverviewSection = () => {
     if (!overallStats) return null;
 
-    // Chart data
-    const chartData = {
-      labels: stats.map((stat) => `EVT${stat.eventId}`),
-      datasets: [
-        {
-          data: stats.map((stat) => stat.totalTicketsSold),
-          color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-          strokeWidth: 2,
-        },
-      ],
-    };
-
     return (
       <VStack gap={16} p={16}>
         {/* Summary Cards Grid */}
         <HStack gap={12}>
           <StatsCard
             icon="🎪"
-            title="Tổng Sự Kiện"
+            title="Total Events"
             value={overallStats.totalEvents.toString()}
             bgColor="#dbeafe"
             textColor="#1d4ed8"
           />
           <StatsCard
             icon="🎫"
-            title="Tổng Vé Bán"
+            title="Total Tickets Sold"
             value={overallStats.totalTicketsSold.toLocaleString()}
             bgColor="#dcfce7"
             textColor="#15803d"
@@ -277,14 +265,14 @@ export default function StatisticsScreen() {
         <HStack gap={12}>
           <StatsCard
             icon="✅"
-            title="Tổng Check-in"
+            title="Total Check-in"
             value={overallStats.totalTicketsEntered.toLocaleString()}
             bgColor="#dbeafe"
             textColor="#1d4ed8"
           />
           <StatsCard
             icon="💰"
-            title="Tổng Doanh Thu"
+            title="Total Revenue"
             value={formatCurrencyShort(overallStats.totalRevenue)}
             bgColor="#f3e8ff"
             textColor="#7c3aed"
@@ -294,7 +282,7 @@ export default function StatisticsScreen() {
         {/* Chart Section */}
         <View style={styles.chartContainer}>
           <Text fontSize={18} bold color="#1f2937" mb={12} pl={5}>
-            📊 Biểu Đồ Tổng Quan
+            📊 Overview Charts
           </Text>
           {/* Chart Toggle Buttons */}
           <VStack gap={16}>
@@ -307,7 +295,7 @@ export default function StatisticsScreen() {
                 mb={8}
                 style={{ textAlign: "right" }}
               >
-                📊 Vé Đã Bán
+                📊 Solds 
               </Text>
               <BarChart
                 data={{
@@ -351,7 +339,7 @@ export default function StatisticsScreen() {
                 mb={8}
                 style={{ textAlign: "right" }}
               >
-                ✅ Đã Check-in
+                ✅ Checked-in
               </Text>
               <BarChart
                 data={{
@@ -399,7 +387,7 @@ export default function StatisticsScreen() {
         {/* Event Selector */}
         <View style={styles.selectorContainer}>
           <Text fontSize={14} bold color="#374151" mb={8}>
-            Chọn Sự Kiện
+            Select Event 
           </Text>
           <TouchableOpacity
             style={styles.customSelector}
@@ -407,7 +395,7 @@ export default function StatisticsScreen() {
           >
             <Text>
               {selectedEvent === "all"
-                ? "Tất Cả Sự Kiện"
+                ? "All Events"
                 : `${
                     events.find(
                       (event) => event.id.toString() === selectedEvent
@@ -425,7 +413,7 @@ export default function StatisticsScreen() {
               <View style={styles.modalContent}>
                 <FlatList
                   data={[
-                    { id: "all", name: "Tất Cả Sự Kiện" },
+                    { id: "all", name: "All Events" },
                     ...stats.map((stat) => ({
                       id: stat.eventId,
                       name: `${events.find(
@@ -465,11 +453,11 @@ export default function StatisticsScreen() {
         <View style={styles.eventStatsContainer}>
           <HStack justifyContent="space-between" alignItems="center" mb={16}>
             <Text fontSize={18} bold color="#1f2937">
-              📋 Chi Tiết Sự Kiện
+              📋 Event Details
             </Text>
             <View style={styles.statusBadge}>
               <Text fontSize={12} bold color="#059669">
-                Đang Diễn Ra
+                Ongoing
               </Text>
             </View>
           </HStack>
@@ -477,24 +465,24 @@ export default function StatisticsScreen() {
           <HStack gap={8} mb={16}>
             <DetailStatsCard
               value={currentEventData.sold.toLocaleString()}
-              label="Vé Đã Bán"
+              label="Sold"
               color="#1d4ed8"
             />
             <DetailStatsCard
               value={currentEventData.checkin.toLocaleString()}
-              label="Check-in"
+              label="Checked-in"
               color="#059669"
             />
             <DetailStatsCard
               value={currentEventData.cancelled.toLocaleString()}
-              label="Đã Hủy"
+              label="Cancelled"
               color="#dc2626"
             />
           </HStack>
 
           <View style={styles.revenueRow}>
             <Text fontSize={14} color="#6b7280">
-              Doanh Thu:
+              Revenue:
             </Text>
             <Text fontSize={18} bold color="#7c3aed">
               {formatCurrency(currentEventData.revenue)}
@@ -505,7 +493,7 @@ export default function StatisticsScreen() {
         {/* Event List */}
         <View style={styles.eventListContainer}>
           <Text fontSize={18} bold color="#1f2937" mb={12}>
-            📝 Danh Sách Sự Kiện
+            📝 Event List
           </Text>
           <VStack gap={12}>
             {stats.map((stat, index) => (
@@ -699,7 +687,7 @@ function EventCard({ event }: { event: any }) {
             {event.sold}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Vé đã bán
+            Sold
           </Text>
         </View>
         <View style={{ flex: 1, alignItems: "center" }}>
@@ -707,7 +695,7 @@ function EventCard({ event }: { event: any }) {
             {event.checkin}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Check-in
+            Checked-in
           </Text>
         </View>
         <View style={{ flex: 1, alignItems: "center" }}>
@@ -715,7 +703,7 @@ function EventCard({ event }: { event: any }) {
             {event.cancelled}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Đã hủy
+            Cancelled
           </Text>
         </View>
       </HStack>
@@ -724,7 +712,7 @@ function EventCard({ event }: { event: any }) {
 
       <HStack justifyContent="space-between" alignItems="center">
         <Text fontSize={14} color="#6b7280">
-          Doanh thu:
+          Revenue:
         </Text>
         <Text fontSize={16} bold color="#7c3aed">
           {formatCurrency(event.revenue)}

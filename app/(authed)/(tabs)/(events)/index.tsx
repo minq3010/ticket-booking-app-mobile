@@ -96,7 +96,7 @@ export default function EventsScreen() {
         <TouchableOpacity
           onPress={handleSearch}
           style={{
-            backgroundColor: "#000",
+            backgroundColor: "#3b82f6",
             borderRadius: 15,
             padding: 10,
             minWidth: 40,
@@ -113,7 +113,7 @@ export default function EventsScreen() {
           <TouchableOpacity
             onPress={handleClearSearch}
             style={{
-              backgroundColor: "gray",
+              backgroundColor: "#3b82f6",
               borderRadius: 15,
               padding: 10,
               minWidth: 40,
@@ -122,7 +122,7 @@ export default function EventsScreen() {
               justifyContent: "center",
             }}
             >
-            <Text fontSize={14}>
+            <Text fontSize={14} color="white">
               <TabBarIcon size={20} name="close" />
             </Text>
           </TouchableOpacity>
@@ -178,6 +178,7 @@ export default function EventsScreen() {
                     alignSelf: "center",
                     position: "absolute",
                     right: 1,
+                    color: "#3b82f6",
                   }}
                   />
               </HStack>
@@ -225,6 +226,7 @@ const headerRight = () => {
   return (
     <TabBarIcon
     size={32}
+    color={"#3b82f6"}
     name="add-circle-outline"
     onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
     />

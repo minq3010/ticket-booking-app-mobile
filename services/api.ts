@@ -3,9 +3,9 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const url =
-  Platform.OS === "android"
+  Platform.OS === "android" // For Android emulator
     ? "http://10.0.2.2:26367"
-    : "http://192.168.1.18:26367";
+    : "http://192.168.1.18:26367"; // For physical device or iOS simulator (ipconfig getifaddr en0)
 //const url = "https://rcwc2n8v-26367.asse.devtunnels.ms";
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 

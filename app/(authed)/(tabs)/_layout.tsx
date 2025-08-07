@@ -68,14 +68,14 @@ export default function TabLayout() {
             headerTitle: tab.displayName,
             href: tab.showFor.includes(user?.role!) ? tab.name : null,
             tabBarLabel: ({ focused }) => (
-              <Text style={ { color: focused ? "black" : "gray", fontSize: 12 } } >
+              <Text style={ { color: focused ? "#3b82f6" : "gray", fontSize: 12 } } >
                 { tab.displayName }
               </Text>
             ),
             tabBarIcon: ({ focused }) => (
               <TabBarIcon
                 name={ tab.icon as ComponentProps<typeof Ionicons>['name'] }
-                color={ focused ? 'black' : "gray" }
+                color={ focused ? '#3b82f6' : "gray" }
               />
             )
           } }

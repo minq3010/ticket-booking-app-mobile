@@ -1,5 +1,5 @@
 import { Text as RNText, TextProps } from 'react-native';
-import React, { PropsWithChildren } from 'react';
+import { PropsWithChildren } from 'react';
 import { ShortcutProps, defaultShortcuts } from "@/styles/shortcuts";
 
 export interface CustomTextProps extends PropsWithChildren, ShortcutProps, TextProps {

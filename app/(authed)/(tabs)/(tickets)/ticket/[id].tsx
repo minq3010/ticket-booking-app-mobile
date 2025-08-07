@@ -104,7 +104,7 @@ export default function TicketDetailScreen() {
           width: 60,
           height: 60,
           borderRadius: 30,
-          backgroundColor: 'black',
+          backgroundColor: '#3b82f6',
           justifyContent: 'center',
           alignItems: 'center',
           shadowColor: '#000',

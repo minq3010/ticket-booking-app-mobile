@@ -13,6 +13,7 @@ import {
   Alert,
   StyleSheet,
   RefreshControl,
+  BackHandler,
 } from "react-native";
 
 type Info = {
@@ -147,7 +148,7 @@ export default function ProfileScreen() {
       });
       setEdit(false);
       Alert.alert("Success", "Update Completed!");
-      if (user?.id) fetchUserInfo(); // Cập nhật lại thông tin từ server
+      if (user?.id) fetchUserInfo();
     } catch (error) {
       console.error("Error updating profile:", error);
       Alert.alert("Error", "Failed to update profile. Please try again.");
@@ -181,7 +182,7 @@ export default function ProfileScreen() {
     <View>
       <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         {/* Avatar */}
-        <View style={styles.avatarSection}>
+        <View style={[styles.avatarSection, { backgroundColor: "#6593ed" }]}>
           <View style={styles.avatarContainer}>
             <TouchableOpacity
               onPress={edit ? handleChangeAvatar : undefined}
@@ -206,7 +207,7 @@ export default function ProfileScreen() {
           {edit && <Text style={styles.editText}>Edit Avatar</Text>}
         </View>
         {/* Form */}
-        <View style={styles.formSection}>
+        <View style={[styles.formSection, { backgroundColor: "#ffffff" }]}>
           {/* Name */}
           <View style={styles.formGroup}>
             <Text style={styles.formLabel}>Fullname</Text>
@@ -257,7 +258,7 @@ export default function ProfileScreen() {
             {edit ? (
               <>
                 <TouchableOpacity
-                  style={[styles.btn, styles.btnPrimary, { flex: 1 }]}
+                  style={[styles.btn, styles.btnPrimary, { flex: 1, backgroundColor: "#3b82f6" }]}
                   onPress={handleSave}
                   disabled={saving}
                 >
@@ -281,11 +282,11 @@ export default function ProfileScreen() {
               </>
             ) : (
               <TouchableOpacity
-                style={[styles.btn, styles.btnPrimary, { flex: 1 }]}
+                style={[styles.btn, styles.btnPrimary, { flex: 1, backgroundColor: "#3b82f6" }]}
                 onPress={() => setEdit(true)}
               >
                 <Text style={{ color: "white", fontWeight: "600" }}>
-                  ✏️ Edit
+                  Edit
                 </Text>
               </TouchableOpacity>
             )}
@@ -294,11 +295,11 @@ export default function ProfileScreen() {
           <View style={styles.divider} />
           {/* Logout */}
           <TouchableOpacity
-            style={[styles.btn, styles.btnDanger, { width: "100%" }]}
+            style={[styles.btn, styles.btnDanger, {flex: 1, backgroundColor: "#ef4444" }]}
             onPress={logout}
           >
-            <Text style={{ color: "#ef4444", fontWeight: "600" }}>
-              🚪Loggout
+            <Text style={{ color: "#fff", fontWeight: "600" }}>
+              Logout
             </Text>
           </TouchableOpacity>
         </View>

@@ -1,4 +1,3 @@
-import React from 'react';
 import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, TouchableOpacityProps } from 'react-native';
 import { ShortcutProps, defaultShortcuts } from '@/styles/shortcuts';
 
@@ -37,13 +36,14 @@ const styles = {
   contained: StyleSheet.create({
     button: {
       padding: 14,
-      borderRadius: 50,
-      backgroundColor: 'black',
+      borderRadius: 6,
+      backgroundColor: '#1877f2',
     },
     text: {
       textAlign: 'center',
       color: 'white',
       fontSize: 18,
+      fontWeight: 'bold' 
     },
   }),
   outlined: StyleSheet.create({

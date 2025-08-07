@@ -377,7 +377,7 @@ export default function EventDetailsScreen() {
             <VStack gap={16} mt={5}>
               <HStack alignItems="center" gap={12} style={styles.infoRow}>
                 <VStack style={styles.iconContainer}>
-                  <TabBarIcon size={20} name="location" color="#000" />
+                  <TabBarIcon size={20} name="location" color="#3b82f6" />
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
@@ -391,7 +391,7 @@ export default function EventDetailsScreen() {
 
               <HStack alignItems="center" gap={12} style={styles.infoRow}>
                 <VStack style={styles.iconContainer}>
-                  <TabBarIcon size={20} name="calendar" color="#000" />
+                  <TabBarIcon size={20} name="calendar" color="#3b82f6" />
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
@@ -409,7 +409,7 @@ export default function EventDetailsScreen() {
 
               <HStack alignItems="center" gap={12} style={styles.infoRow}>
                 <VStack style={styles.iconContainer}>
-                  <TabBarIcon size={20} name="pricetag" color="#000" />
+                  <TabBarIcon size={20} name="pricetag" color="#3b82f6" />
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
@@ -717,7 +717,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 20,
   },
   buyButton: {
-    backgroundColor: "#000",
+    backgroundColor: "#3b82f6",
     borderRadius: 12,
     paddingVertical: 16,
     marginTop: 30,

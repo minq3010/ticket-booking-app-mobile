@@ -3,11 +3,10 @@ import DateTimePicker from "@/components/DateTimePicker";
 import { Input } from "@/components/Input";
 import { Text } from "@/components/Text";
 import { VStack } from "@/components/VStack";
-import { HStack } from "@/components/HStack";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { eventService } from "@/services/events";
 import { useNavigation, router } from "expo-router";
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Keyboard,
@@ -94,7 +93,6 @@ export default function NewEvent() {
     try {
       setIsSubmitting(true);
 
-      // ✅ Sử dụng FormData nếu có ảnh, JSON nếu không
       if (selectedImage) {
         const formData = createFormData();
         await eventService.createOneWithImage(formData);
@@ -129,7 +127,6 @@ export default function NewEvent() {
     <ScrollView style={{ flex: 1 }} contentContainerStyle={{ flexGrow: 1 }}>
       <Pressable onPress={Keyboard.dismiss} style={{ flex: 1 }}>
         <VStack m={20} flex={1} gap={30}>
-          {/* ✅ Image Upload Section */}
           <VStack gap={5}>
             <Text ml={10} fontSize={14} color="gray">
               Event Image
