@@ -12,7 +12,6 @@ export const styles = StyleSheet.create({
     backgroundColor: '#f9fafb',
   },
   header: {
-    background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
     backgroundColor: '#3b82f6',
   },
   scrollView: {
