@@ -633,7 +633,7 @@ export default function EventDetailsScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#eaf2fb", // soft blue background
   },
   eventImage: {
     width: "100%",
@@ -642,9 +642,9 @@ const styles = StyleSheet.create({
   imagePlaceholder: {
     width: "100%",
     height: 280,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#eaf2fb",
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#dbeafe",
   },
   eventInfoCard: {
     backgroundColor: "#fff",
@@ -652,14 +652,14 @@ const styles = StyleSheet.create({
     marginTop: -30,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
-    shadowColor: "#000",
+    shadowColor: "#2563eb",
     shadowOffset: {
       width: 0,
       height: -2,
     },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    shadowOpacity: 0.12,
+    shadowRadius: 12,
+    elevation: 8,
   },
   eventTitle: {
     textAlign: "center",
@@ -674,7 +674,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: "#f5f5f5",
+    backgroundColor: "#eaf2fb",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -701,45 +701,45 @@ const styles = StyleSheet.create({
     textAlign: "justify",
   },
   statsContainer: {
-    backgroundColor: "#f8f8f8",
+    backgroundColor: "#f1f5f9",
     borderRadius: 12,
     padding: 20,
     flexDirection: "row",
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: "#dbeafe",
   },
   statItem: {
     paddingVertical: 8,
   },
   statDivider: {
     width: 1,
-    backgroundColor: "#e0e0e0",
+    backgroundColor: "#dbeafe",
     marginHorizontal: 20,
   },
   buyButton: {
-    backgroundColor: "#3b82f6",
+    backgroundColor: "#2563eb",
     borderRadius: 12,
     paddingVertical: 16,
     marginTop: 30,
     marginBottom: 40,
-    shadowColor: "#000",
+    shadowColor: "#2563eb",
     shadowOffset: {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
+    shadowOpacity: 0.18,
+    shadowRadius: 12,
     elevation: 8,
   },
   imageUploadContainer: {
     height: 150,
     borderRadius: 10,
     borderWidth: 2,
-    borderColor: "#ddd",
+    borderColor: "#dbeafe",
     borderStyle: "dashed",
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "#f9f9f9",
+    backgroundColor: "#eaf2fb",
   },
   selectedImage: {
     width: "100%",

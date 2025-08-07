@@ -80,7 +80,7 @@ export default function TicketDetailScreen() {
           borderRadius: 20,
         }}
       >
-        <Text numberOfLines={2} adjustsFontSizeToFit fontSize={30} bold>
+        <Text numberOfLines={2} adjustsFontSizeToFit fontSize={30} bold >
           {ticket.event.name}
         </Text>
         <Text fontSize={20}>{ticket.event.location}</Text>

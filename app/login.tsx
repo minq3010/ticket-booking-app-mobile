@@ -79,9 +79,7 @@ export default function Login() {
             autoCorrect={false}
             h={48}
             p={14}
-            style={{
-              borderRadius: 6
-            }}
+            borderRadius={6}
           />
         </VStack>
 
@@ -99,9 +97,7 @@ export default function Login() {
             autoCorrect={false}
             h={48}
             p={14}
-            style={{
-              borderRadius: 6
-            }}
+            borderRadius={6}
           />
         </VStack>
 

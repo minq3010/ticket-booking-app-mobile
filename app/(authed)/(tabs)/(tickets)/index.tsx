@@ -44,9 +44,15 @@ export default function TicketScreen() {
   }, [navigation]);
 
   return (
-    <VStack flex={1} p={20} pb={0} gap={20}>
+    <VStack
+      flex={1}
+      p={20}
+      pb={0}
+      gap={20}
+      style={{ backgroundColor: "#f0f6ff" }}
+    >
       <HStack alignItems="center" justifyContent="space-between">
-        <Text fontSize={18} bold>
+        <Text fontSize={18} bold color="#2563eb">
           {tickets.length} Tickets
         </Text>
       </HStack>
@@ -74,7 +80,7 @@ export default function TicketScreen() {
                   p={15}
                   justifyContent="space-between"
                   style={{
-                    backgroundColor: "white",
+                    backgroundColor: "#ffffff",
                     borderTopLeftRadius: 20,
                     borderBottomLeftRadius: 20,
                     borderTopRightRadius: 5,
@@ -87,17 +93,22 @@ export default function TicketScreen() {
                       adjustsFontSizeToFit
                       fontSize={15}
                       bold
+                      color="#2563eb"
                     >
                       {ticket.event.name}
                     </Text>
                   </HStack>
-                  <Text fontSize={12}>
+                  <Text fontSize={12} color="#64748b">
                     {new Date(ticket.event.date).toLocaleString()}
                   </Text>
-                  <Text fontSize={15} style={{ flexWrap: "wrap" }}>
+                  <Text
+                    fontSize={15}
+                    style={{ flexWrap: "wrap" }}
+                    color="#2563eb"
+                  >
                     {ticket.event.location}
                   </Text>
-                  <Text fontSize={15} bold>
+                  <Text fontSize={15} bold color="#059669">
                     Price:{" "}
                     {ticket.event.price.toLocaleString("vi-VN", {
                       style: "currency",
@@ -111,7 +122,7 @@ export default function TicketScreen() {
                   w={"1%"}
                   style={{
                     alignSelf: "center",
-                    borderColor: "lightgray",
+                    borderColor: "#dbeafe",
                     borderWidth: 2,
                     borderStyle: "dashed",
                   }}
@@ -123,20 +134,27 @@ export default function TicketScreen() {
                   justifyContent="center"
                   alignItems="center"
                   style={{
-                    backgroundColor: ticket.entered ? "gray" : "white",
+                    backgroundColor: ticket.entered ? "#ffffff" : "#b6d1f9",
                     borderTopRightRadius: 20,
                     borderBottomRightRadius: 20,
                     borderTopLeftRadius: 5,
                     borderBottomLeftRadius: 5,
                   }}
                 >
-                  <Text fontSize={20} bold>
+                  <Text
+                    fontSize={20}
+                    bold
+                    color={
+                      ticket.entered ? "#dc2626" : "#2563eb"
+                    }
+                  >
                     {ticket.entered ? "Used" : "Available"}
                   </Text>
                   {ticket.entered && (
                     <Text
                       style={{ fontSize: 10, paddingLeft: 18, paddingTop: 5 }}
                       mt={12}
+                      color="#64748b"
                     >
                       {new Date(ticket.updatedAt).toLocaleString()}
                     </Text>

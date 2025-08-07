@@ -1,4 +1,3 @@
-import { Button } from "@/components/Button";
 import { Divider } from "@/components/Divider";
 import { HStack } from "@/components/HStack";
 import { Text } from "@/components/Text";
@@ -6,13 +5,11 @@ import { VStack } from "@/components/VStack";
 import { Input } from "@/components/Input";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useAuth } from "@/context/AuthContext";
-import { Api } from "@/services/api";
 import { eventService } from "@/services/events";
 import { Event } from "@/types/event";
 import { UserRole } from "@/types/user";
 import { format } from "date-fns/format";
 import { vi } from "date-fns/locale";
-import * as Linking from "expo-linking";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
 import { Alert, FlatList, TouchableOpacity, Keyboard } from "react-native";
@@ -78,7 +75,7 @@ export default function EventsScreen() {
   }, [navigation, user]);
 
   return (
-    <VStack flex={1} p={20} pb={0} gap={10}>
+    <VStack flex={1} p={20} pb={0} gap={10} style={{ backgroundColor: '#eaf2fb' }}>
       {/* Search Bar */}
       <HStack gap={5} alignItems="center">
         <VStack flex={1} >
@@ -130,7 +127,7 @@ export default function EventsScreen() {
       </HStack>
 
       <HStack alignItems="center" justifyContent="space-between">
-        <Text fontSize={18} bold>
+        <Text fontSize={18} bold color="#2563eb">
           {events.length} Events
         </Text>
       </HStack>
@@ -143,13 +140,18 @@ export default function EventsScreen() {
         ItemSeparatorComponent={() => <VStack h={20} />}
         renderItem={({ item: event }) => (
           <VStack
-          gap={20}
-          p={20}
-          style={{
-            backgroundColor: "white",
-            borderRadius: 20,
-          }}
-          key={event.id}
+            gap={20}
+            p={20}
+            style={{
+              backgroundColor: "white",
+              borderRadius: 20,
+              shadowColor: '#2563eb',
+              shadowOffset: { width: 0, height: 4 },
+              shadowOpacity: 0.12,
+              shadowRadius: 8,
+              elevation: 4,
+            }}
+            key={event.id}
           >
             <TouchableOpacity onPress={() => onGoToEventPage(event.id)}>
               <HStack alignItems="center" justifyContent="space-between">
@@ -159,18 +161,19 @@ export default function EventsScreen() {
                     adjustsFontSizeToFit
                     fontSize={20}
                     bold
-                    >
+                    color="#2563eb"
+                  >
                     {event.name}
                   </Text>
-                  <Text fontSize={26} bold>
+                  <Text fontSize={26} bold color="#2563eb">
                     {" "}
                     <TabBarIcon size={20} name="location" />{" "}
                   </Text>
-                  <Text fontSize={20} bold>
+                  <Text fontSize={20} bold color="#2563eb">
                     {event.location}
                   </Text>
                 </HStack>
-                {/*  Hiển thị chevron cho tất cả user */}
+                {/* Chevron icon for all users */}
                 <TabBarIcon
                   size={24}
                   name="chevron-forward"
@@ -178,13 +181,12 @@ export default function EventsScreen() {
                     alignSelf: "center",
                     position: "absolute",
                     right: 1,
-                    color: "#3b82f6",
+                    color: "#2563eb",
                   }}
-                  />
+                />
               </HStack>
-              <Text fontSize={20} bold color="gray" mt={10}>
-                Price:{" "}
-                {event.price.toLocaleString("vi-VN", {
+              <Text fontSize={20} bold color="#ef4444" mt={10}>
+                Price: {event.price.toLocaleString("vi-VN", {
                   style: "currency",
                   currency: "VND",
                 })}
@@ -192,32 +194,19 @@ export default function EventsScreen() {
             </TouchableOpacity>
             <Divider />
             <HStack justifyContent="space-between">
-              <Text bold fontSize={16} color="gray">
+              <Text bold fontSize={16} color="#64748b">
                 Sold: {event.totalTicketsPurchased}
               </Text>
-              <Text bold fontSize={16} color="green">
+              <Text bold fontSize={16} color="#22c55e">
                 Entered: {event.totalTicketsEntered}
               </Text>
             </HStack>
-
-            {/* {user?.role === UserRole.Attendee && (
-              <VStack>
-              <Button
-              variant="outlined"
-              disabled={isLoading}
-              onPress={() => buyTicket(event.id)}
-              >
-              Buy Ticket
-              </Button>
-              </VStack>
-              )} */}
-
-            <Text fontSize={13} color="gray">
-              {format(new Date(event.date), "dd/MM/yyyy HH:mm", { locale: vi })}
+            <Text fontSize={13} color="#64748b">
+              {format(new Date(event.date), "dd/MM/yyyy HH:mm")}
             </Text>
           </VStack>
         )}
-        />
+      />
     </VStack>
   );
 }
