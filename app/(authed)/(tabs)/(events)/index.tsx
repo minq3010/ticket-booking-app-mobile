@@ -9,26 +9,53 @@ import { eventService } from "@/services/events";
 import { Event } from "@/types/event";
 import { UserRole } from "@/types/user";
 import { format } from "date-fns/format";
-import { vi } from "date-fns/locale";
 import { router, useFocusEffect, useNavigation } from "expo-router";
 import { useCallback, useEffect, useState } from "react";
-import { Alert, FlatList, TouchableOpacity, Keyboard } from "react-native";
+import {
+  Alert,
+  FlatList,
+  TouchableOpacity,
+  Keyboard,
+  Modal,
+  View,
+  ScrollView,
+} from "react-native";
+import { Slider } from "@miblanchard/react-native-slider";
+import { fi } from "date-fns/locale";
+import { styles } from "@/styles/_global";
+import { Button } from "@/components/Button";
 export default function EventsScreen() {
   const { user } = useAuth();
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
+  const [maxPrice, setMaxPrice] = useState(10000000);
+  const [filterVisible, setFilterVisible] = useState(false);
 
   function onGoToEventPage(id: number) {
-    //  Cả Manager và Attendee đều có thể xem event detail
     router.push({
       pathname: "/(authed)/(tabs)/(events)/event/[id]",
       params: { id: id.toString() },
     });
   }
-  
-  
+
+  const quickFilters = [
+    { label: "Free", value: 0 },
+    { label: "Under 100k", value: 100000 },
+    { label: "Under 500k", value: 500000 },
+    { label: "Under 1M", value: 1000000 },
+    { label: "Under 2M", value: 2000000 },
+    { label: "Under 5M", value: 5000000 },
+    { label: "Under 10M", value: 10000000 },
+  ];
+
+  const filteredEvents = events.filter(
+    (event) =>
+      event.price <= maxPrice &&
+      (user?.role === UserRole.Manager || new Date(event.date) >= new Date())
+  );
+
   const fetchEvents = async (query?: string) => {
     try {
       setIsLoading(true);
@@ -49,7 +76,7 @@ export default function EventsScreen() {
       setIsLoading(false);
     }
   };
-  
+
   const handleSearch = () => {
     Keyboard.dismiss();
     fetchEvents(searchQuery);
@@ -57,7 +84,7 @@ export default function EventsScreen() {
 
   const handleClearSearch = () => {
     setSearchQuery("");
-    fetchEvents(); 
+    fetchEvents();
     Keyboard.dismiss();
   };
 
@@ -66,7 +93,7 @@ export default function EventsScreen() {
       fetchEvents();
     }, [])
   );
-  
+
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "Events",
@@ -75,10 +102,16 @@ export default function EventsScreen() {
   }, [navigation, user]);
 
   return (
-    <VStack flex={1} p={20} pb={0} gap={10} style={{ backgroundColor: '#eaf2fb' }}>
+    <VStack
+      flex={1}
+      p={20}
+      pb={0}
+      gap={10}
+      style={{ backgroundColor: "#eaf2fb" }}
+    >
       {/* Search Bar */}
       <HStack gap={5} alignItems="center">
-        <VStack flex={1} >
+        <VStack flex={1}>
           <Input
             placeholder="Search events..."
             value={searchQuery}
@@ -88,7 +121,7 @@ export default function EventsScreen() {
             h={40}
             pl={14}
             p={9}
-            />
+          />
         </VStack>
         <TouchableOpacity
           onPress={handleSearch}
@@ -101,11 +134,31 @@ export default function EventsScreen() {
             alignItems: "center",
             justifyContent: "center",
           }}
-          >
+        >
           <Text color="white">
             <TabBarIcon size={20} name="search" />
           </Text>
         </TouchableOpacity>
+
+        {searchQuery.length === 0 && (
+          <TouchableOpacity
+            onPress={() => setFilterVisible(true)}
+            style={{
+              backgroundColor: "#3b82f6",
+              borderRadius: 15,
+              padding: 10,
+              minWidth: 40,
+              minHeight: 40,
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Text color="white">
+              <TabBarIcon size={20} name="filter" />
+            </Text>
+          </TouchableOpacity>
+        )}
+
         {searchQuery.length > 0 && (
           <TouchableOpacity
             onPress={handleClearSearch}
@@ -118,13 +171,105 @@ export default function EventsScreen() {
               alignItems: "center",
               justifyContent: "center",
             }}
-            >
+          >
             <Text fontSize={14} color="white">
               <TabBarIcon size={20} name="close" />
             </Text>
           </TouchableOpacity>
         )}
       </HStack>
+
+      {/* Filter Panel */}
+      <Modal visible={filterVisible} transparent animationType="slide">
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(222, 214, 214, 0.884)",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
+        >
+          <VStack
+            p={20}
+            borderRadius={16}
+            style={{ backgroundColor: "#fff", width: "90%" }}
+          >
+            <Text fontSize={18} bold mb={12} color="#2563eb">
+              Filter by Price
+            </Text>
+            <Text fontSize={16} bold color="#2563eb" mb={4}>
+              Max Price: {maxPrice.toLocaleString("vi-VN")} VND
+            </Text>
+            <View style={{ width: "100%", height: 40 }}>
+              <Slider
+                minimumValue={0}
+                maximumValue={10000000}
+                step={100000}
+                value={maxPrice}
+                onValueChange={(value) =>
+                  setMaxPrice(Array.isArray(value) ? value[0] : value)
+                }
+                minimumTrackTintColor="#2563eb"
+                maximumTrackTintColor="#d1e0f4"
+              />
+            </View>
+            <HStack gap={8} mt={12}>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                {quickFilters.map((f) => (
+                  <TouchableOpacity
+                    key={f.value}
+                    onPress={() => setMaxPrice(f.value)}
+                    style={{
+                      backgroundColor:
+                        maxPrice === f.value ? "#2563eb" : "#e5e7eb",
+                      borderRadius: 20,
+                      paddingVertical: 8,
+                      paddingHorizontal: 16,
+                    }}
+                  >
+                    <Text color={maxPrice === f.value ? "white" : "#2563eb"}>
+                      {f.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </ScrollView>
+            </HStack>
+            <TouchableOpacity
+              onPress={() => setFilterVisible(false)}
+              style={{ marginTop: 20 }}
+            >
+              <Button
+                onPress={() => setFilterVisible(false)}
+                style={{
+                  backgroundColor: "#2563eb",
+                  borderRadius: 20,
+                  paddingVertical: 12,
+                  paddingHorizontal: 24,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  shadowColor: "#2563eb",
+                  shadowOffset: { width: 0, height: 2 },
+                  shadowOpacity: 0.15,
+                  shadowRadius: 4,
+                  elevation: 2,
+                }}
+              >
+                <Text
+                  color="white"
+                  bold
+                  style={{
+                    textAlign: "center",
+                    fontSize: 16,
+                    letterSpacing: 1,
+                  }}
+                >
+                  Apply
+                </Text>
+              </Button>
+            </TouchableOpacity>
+          </VStack>
+        </View>
+      </Modal>
 
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold color="#2563eb">
@@ -134,78 +279,84 @@ export default function EventsScreen() {
 
       <FlatList
         keyExtractor={(item) => item.id.toString()}
-        data={events}
+        data={filteredEvents}
         onRefresh={fetchEvents}
         refreshing={isLoading}
         ItemSeparatorComponent={() => <VStack h={20} />}
-        renderItem={({ item: event }) => (
-          <VStack
-            gap={20}
-            p={20}
-            style={{
-              backgroundColor: "white",
-              borderRadius: 20,
-              shadowColor: '#2563eb',
-              shadowOffset: { width: 0, height: 4 },
-              shadowOpacity: 0.12,
-              shadowRadius: 8,
-              elevation: 4,
-            }}
-            key={event.id}
-          >
-            <TouchableOpacity onPress={() => onGoToEventPage(event.id)}>
-              <HStack alignItems="center" justifyContent="space-between">
-                <HStack alignItems="center" style={{ flexWrap: "wrap" }}>
-                  <Text
-                    numberOfLines={2}
-                    adjustsFontSizeToFit
-                    fontSize={20}
-                    bold
-                    color="#2563eb"
-                  >
-                    {event.name}
-                  </Text>
-                  <Text fontSize={26} bold color="#2563eb">
-                    {" "}
-                    <TabBarIcon size={20} name="location" />{" "}
-                  </Text>
-                  <Text fontSize={20} bold color="#2563eb">
-                    {event.location}
-                  </Text>
+        renderItem={({ item: event }) => {
+          const isPastEvent = new Date(event.date) < new Date();
+          return (
+            <VStack
+              gap={20}
+              p={20}
+              style={{
+                backgroundColor: isPastEvent ? "#d1e0f4" : "#ffffff",
+                borderRadius: 20,
+                shadowColor: "#2563eb",
+                shadowOffset: { width: 0, height: 4 },
+                shadowOpacity: 0.12,
+                shadowRadius: 8,
+                elevation: 4,
+              }}
+              key={event.id}
+            >
+              <TouchableOpacity
+                onPress={() => onGoToEventPage(event.id)}
+                disabled={isPastEvent && user?.role === UserRole.Attendee}
+              >
+                <HStack alignItems="center" justifyContent="space-between">
+                  <HStack alignItems="center" style={{ flexWrap: "wrap" }}>
+                    <Text
+                      numberOfLines={2}
+                      adjustsFontSizeToFit
+                      fontSize={20}
+                      bold
+                      color="#2563eb"
+                    >
+                      {event.name}
+                    </Text>
+                    <Text fontSize={26} bold color="#2563eb">
+                      {" "}
+                      <TabBarIcon size={20} name="location" />{" "}
+                    </Text>
+                    <Text fontSize={20} bold color="#2563eb">
+                      {event.location}
+                    </Text>
+                  </HStack>
+                  <TabBarIcon
+                    size={24}
+                    name="chevron-forward"
+                    style={{
+                      alignSelf: "center",
+                      position: "absolute",
+                      right: 1,
+                      color: "#2563eb",
+                    }}
+                  />
                 </HStack>
-                {/* Chevron icon for all users */}
-                <TabBarIcon
-                  size={24}
-                  name="chevron-forward"
-                  style={{
-                    alignSelf: "center",
-                    position: "absolute",
-                    right: 1,
-                    color: "#2563eb",
-                  }}
-                />
+                <Text fontSize={20} bold color="#ef4444" mt={10}>
+                  Price:{" "}
+                  {event.price.toLocaleString("vi-VN", {
+                    style: "currency",
+                    currency: "VND",
+                  })}
+                </Text>
+              </TouchableOpacity>
+              <Divider />
+              <HStack justifyContent="space-between">
+                <Text bold fontSize={16} color="#64748b">
+                  Sold: {event.totalTicketsPurchased}
+                </Text>
+                <Text bold fontSize={16} color="#22c55e">
+                  Entered: {event.totalTicketsEntered}
+                </Text>
               </HStack>
-              <Text fontSize={20} bold color="#ef4444" mt={10}>
-                Price: {event.price.toLocaleString("vi-VN", {
-                  style: "currency",
-                  currency: "VND",
-                })}
+              <Text fontSize={13} color="#64748b">
+                {format(new Date(event.date), "dd/MM/yyyy HH:mm")}
               </Text>
-            </TouchableOpacity>
-            <Divider />
-            <HStack justifyContent="space-between">
-              <Text bold fontSize={16} color="#64748b">
-                Sold: {event.totalTicketsPurchased}
-              </Text>
-              <Text bold fontSize={16} color="#22c55e">
-                Entered: {event.totalTicketsEntered}
-              </Text>
-            </HStack>
-            <Text fontSize={13} color="#64748b">
-              {format(new Date(event.date), "dd/MM/yyyy HH:mm")}
-            </Text>
-          </VStack>
-        )}
+            </VStack>
+          );
+        }}
       />
     </VStack>
   );
@@ -214,10 +365,10 @@ export default function EventsScreen() {
 const headerRight = () => {
   return (
     <TabBarIcon
-    size={32}
-    color={"#3b82f6"}
-    name="add-circle-outline"
-    onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
+      size={32}
+      color={"#3b82f6"}
+      name="add-circle-outline"
+      onPress={() => router.push("/(authed)/(tabs)/(events)/new")}
     />
   );
 };
@@ -304,10 +455,10 @@ const headerRight = () => {
 
 //   } catch (error: any) {
 //     console.error("💥 Payment error:", error);
-    
+
 //     //  Xử lý các loại lỗi cụ thể
 //     let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
-    
+
 //     if (error.response?.status === 401) {
 //       errorMessage = "Phiên đăng nhập đã hết hạn";
 //     } else if (error.response?.status === 404) {
@@ -317,9 +468,9 @@ const headerRight = () => {
 //     } else if (error.message?.includes("Network")) {
 //       errorMessage = "Không có kết nối mạng";
 //     }
-    
+
 //     Alert.alert(" Lỗi", errorMessage);
-    
+
 //   } finally {
 //     setIsLoading(false);
 //   }
