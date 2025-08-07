@@ -49,7 +49,7 @@ export default function StatisticsScreen() {
 
   const fetchEvents = async () => {
     try {
-      const res = await Api.get("/event"); 
+      const res = await Api.get("/event");
       if (Array.isArray(res)) {
         setEvents(res);
       } else if (res.data && Array.isArray(res.data)) {
@@ -214,7 +214,7 @@ export default function StatisticsScreen() {
             bold
             color={activeTab === "overview" ? "white" : "#6b7280"}
           >
-            📈 Overview 
+            📈 Overview
           </Text>
         </TouchableOpacity>
 
@@ -295,39 +295,42 @@ export default function StatisticsScreen() {
                 mb={8}
                 style={{ textAlign: "right" }}
               >
-                📊 Solds 
+                📊 Solds
               </Text>
-              <BarChart
-                data={{
-                  labels: stats.map((stat) => `EVT${stat.eventId}`),
-                  datasets: [
-                    {
-                      data: stats.map((stat) => stat.totalTicketsSold),
-                      color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <BarChart
+                  data={{
+                    labels: stats.map((stat) => `EVT${stat.eventId}`),
+                    datasets: [
+                      {
+                        data: stats.map((stat) => stat.totalTicketsSold),
+                        color: (opacity = 1) =>
+                          `rgba(59, 130, 246, ${opacity})`,
+                      },
+                    ],
+                  }}
+                  width={Math.max(stats.length * 60, screenWidth - 80)}
+                  height={180}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                  chartConfig={{
+                    backgroundColor: "#ffffff",
+                    backgroundGradientFrom: "#ffffff",
+                    backgroundGradientTo: "#ffffff",
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    style: { borderRadius: 16 },
+                    propsForBackgroundLines: {
+                      strokeDasharray: "",
+                      stroke: "#e5e7eb",
+                      strokeWidth: 1,
                     },
-                  ],
-                }}
-                width={screenWidth - 64}
-                height={180}
-                yAxisLabel=""
-                yAxisSuffix=""
-                chartConfig={{
-                  backgroundColor: "#ffffff",
-                  backgroundGradientFrom: "#ffffff",
-                  backgroundGradientTo: "#ffffff",
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: { borderRadius: 16 },
-                  propsForBackgroundLines: {
-                    strokeDasharray: "",
-                    stroke: "#e5e7eb",
-                    strokeWidth: 1,
-                  },
-                }}
-                style={{ marginVertical: 8, borderRadius: 16 }}
-                showValuesOnTopOfBars={true}
-              />
+                  }}
+                  style={{ marginVertical: 8, borderRadius: 16 }}
+                  showValuesOnTopOfBars={true}
+                />
+              </ScrollView>
             </View>
 
             {/* Chart Check-in */}
@@ -341,37 +344,39 @@ export default function StatisticsScreen() {
               >
                 ✅ Checked-in
               </Text>
-              <BarChart
-                data={{
-                  labels: stats.map((stat) => `EVT${stat.eventId}`),
-                  datasets: [
-                    {
-                      data: stats.map((stat) => stat.totalTicketsEntered),
-                      color: (opacity = 1) => `rgba(185, 16, 55, ${opacity})`,
+              <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+                <BarChart
+                  data={{
+                    labels: stats.map((stat) => `EVT${stat.eventId}`),
+                    datasets: [
+                      {
+                        data: stats.map((stat) => stat.totalTicketsEntered),
+                        color: (opacity = 1) => `rgba(185, 16, 55, ${opacity})`,
+                      },
+                    ],
+                  }}
+                  width={Math.max(stats.length * 60, screenWidth - 80)}
+                  height={180}
+                  yAxisLabel=""
+                  yAxisSuffix=""
+                  chartConfig={{
+                    backgroundColor: "#ffffff",
+                    backgroundGradientFrom: "#ffffff",
+                    backgroundGradientTo: "#ffffff",
+                    decimalPlaces: 0,
+                    color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
+                    labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                    style: { borderRadius: 16 },
+                    propsForBackgroundLines: {
+                      strokeDasharray: "",
+                      stroke: "#e5e7eb",
+                      strokeWidth: 1,
                     },
-                  ],
-                }}
-                width={screenWidth - 64}
-                height={180}
-                yAxisLabel=""
-                yAxisSuffix=""
-                chartConfig={{
-                  backgroundColor: "#ffffff",
-                  backgroundGradientFrom: "#ffffff",
-                  backgroundGradientTo: "#ffffff",
-                  decimalPlaces: 0,
-                  color: (opacity = 1) => `rgba(16, 185, 129, ${opacity})`,
-                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
-                  style: { borderRadius: 16 },
-                  propsForBackgroundLines: {
-                    strokeDasharray: "",
-                    stroke: "#e5e7eb",
-                    strokeWidth: 1,
-                  },
-                }}
-                style={{ marginVertical: 8, borderRadius: 16 }}
-                showValuesOnTopOfBars={true}
-              />
+                  }}
+                  style={{ marginVertical: 8, borderRadius: 16 }}
+                  showValuesOnTopOfBars={true}
+                />
+              </ScrollView>
             </View>
           </VStack>
         </View>
@@ -387,7 +392,7 @@ export default function StatisticsScreen() {
         {/* Event Selector */}
         <View style={styles.selectorContainer}>
           <Text fontSize={14} bold color="#374151" mb={8}>
-            Select Event 
+            Select Event
           </Text>
           <TouchableOpacity
             style={styles.customSelector}
@@ -416,9 +421,12 @@ export default function StatisticsScreen() {
                     { id: "all", name: "All Events" },
                     ...stats.map((stat) => ({
                       id: stat.eventId,
-                      name: `${events.find(
-                        (event) => event.id.toString() === stat.eventId.toString()
-                      )?.name}`,
+                      name: `${
+                        events.find(
+                          (event) =>
+                            event.id.toString() === stat.eventId.toString()
+                        )?.name
+                      }`,
                     })),
                   ]}
                   keyExtractor={(item) => item.id.toString()}
@@ -500,9 +508,11 @@ export default function StatisticsScreen() {
               <EventCard
                 key={index}
                 event={{
-                  name: `${events.find(
+                  name: `${
+                    events.find(
                       (event) => event.id.toString() === stat.eventId.toString()
-                    )?.name}`,
+                    )?.name
+                  }`,
                   id: `EVT${stat.eventId}`,
                   sold: stat.totalTicketsSold,
                   checkin: stat.totalTicketsEntered,
