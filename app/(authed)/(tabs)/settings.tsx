@@ -70,9 +70,7 @@ export default function ProfileScreen() {
     };
   }, [user?.id]);
 
-  // Avatar cycle
   const handleChangeAvatar = async () => {
-    // Xin quyền truy cập thư viện ảnh
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permissionResult.granted) {
@@ -83,7 +81,6 @@ export default function ProfileScreen() {
       return;
     }
 
-    // Mở thư viện ảnh
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       quality: 0.8,
@@ -92,7 +89,6 @@ export default function ProfileScreen() {
 
     if (result.canceled) return;
 
-    // Với expo-image-picker v14 trở lên, kết quả nằm trong result.assets
     const asset = result.assets?.[0];
     if (asset?.uri) {
       const formData = new FormData();
@@ -105,7 +101,7 @@ export default function ProfileScreen() {
       formData.append("phone", phone);
       try {
         const uploadRes = await Api.put(
-          `/user/${user?.id}`, // Đổi thành endpoint upload của bạn
+          `/user/${user?.id}`, 
           formData,
           {
             headers: { "Content-Type": "multipart/form-data" },
@@ -121,7 +117,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Save
   const handleSave = async () => {
     if (!name.trim() || !phone.trim()) {
       Alert.alert(
@@ -157,7 +152,6 @@ export default function ProfileScreen() {
     }
   };
 
-  // Cancel
   const handleCancel = () => {
     setEdit(false);
     if (info) {
@@ -308,11 +302,10 @@ export default function ProfileScreen() {
   );
 }
 
-// Styles giữ nguyên như bạn yêu cầu
 const styles = StyleSheet.create({
   background: {
     flex: 1,
-    backgroundColor: "#fff", // Chủ đạo trắng
+    backgroundColor: "#fff", 
     alignItems: "center",
     justifyContent: "center",
     padding: 20,

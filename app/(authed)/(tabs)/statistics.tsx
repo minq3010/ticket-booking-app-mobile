@@ -68,7 +68,7 @@ export default function StatisticsScreen() {
       setError(null);
 
       console.log("🔄 Fetching stats from API...");
-      const res = await Api.get("/stat");
+      const res = await Api.get("/manager/stat");
 
       let statsData: Stats[] = [];
 

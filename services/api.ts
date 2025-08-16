@@ -3,10 +3,12 @@ import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const url =
-  Platform.OS === "android" // For Android emulator
+  Platform.OS === "android" 
     ? "http://10.0.2.2:26367"
-    : "http://192.168.1.18:26367"; // For physical device or iOS simulator (ipconfig getifaddr en0)
+    : "http://192.168.1.132:26367"; //(ipconfig getifaddr en0,1,2 )(mạng đt 172.20.10.4)
 //const url = "https://rcwc2n8v-26367.asse.devtunnels.ms";
+//const url = "https://dcc6f81660cf.ngrok-free.app"; // ngrok url
+
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 
 Api.interceptors.request.use(async (config) => {
