@@ -8,6 +8,7 @@ import { VStack } from "@/components/VStack";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useAuth } from "@/context/AuthContext";
 import {
+  Alert,
   KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
@@ -16,13 +17,15 @@ import { globals } from "@/styles/_global";
 
 export default function Login() {
   const { authenticate, isLoadingAuth } = useAuth();
-
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   async function onAuthenticate() {
-    await authenticate(authMode, email, password);
+    const error = await authenticate(authMode, email, password);
+    if (error) setErrorMsg(error);
+    else setErrorMsg(null);
   }
 
   function onToggleAuthMode() {
@@ -37,6 +40,7 @@ export default function Login() {
     setPassword: (password: string) => void;
     isLoadingAuth: boolean;
     onAuthenticate: () => void;
+    errorMsg?: string | null;
   };
 
   function LoginForm({
@@ -48,6 +52,7 @@ export default function Login() {
     isLoadingAuth,
     onAuthenticate,
     backgroundColor = "#ffffff",
+    errorMsg,
   }: LoginFormProps & { backgroundColor?: string }) {
     return (
       <VStack
@@ -57,15 +62,25 @@ export default function Login() {
           backgroundColor,
           borderRadius: 16,
           padding: 24,
-          // Bóng cho iOS
           shadowColor: "#000",
           shadowOffset: { width: 0, height: 4 },
           shadowOpacity: 0.15,
           shadowRadius: 12,
-          // Bóng cho Android
           elevation: 8,
         }}
       >
+        {errorMsg ? (
+          <Text
+            style={{
+              color: "red",
+              fontWeight: "bold",
+              marginBottom: 10,
+              textAlign: "center",
+            }}
+          >
+            {errorMsg}
+          </Text>
+        ) : null}
         <VStack gap={5}>
           <Text ml={10} fontSize={14} color="gray">
             Email
@@ -137,6 +152,7 @@ export default function Login() {
             setPassword={setPassword}
             isLoadingAuth={isLoadingAuth}
             onAuthenticate={onAuthenticate}
+            errorMsg={errorMsg}
           />
 
           <Divider w={"90%"} />

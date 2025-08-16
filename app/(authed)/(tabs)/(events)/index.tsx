@@ -272,7 +272,9 @@ export default function EventsScreen() {
 
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold color="#2563eb">
-          {events.length} Events
+          {user?.role === UserRole.Manager
+            ? `Events (${filteredEvents.length})`
+            : `Events (${filteredEvents.filter(e => new Date(e.date) >= new Date()).length})`}
         </Text>
       </HStack>
 

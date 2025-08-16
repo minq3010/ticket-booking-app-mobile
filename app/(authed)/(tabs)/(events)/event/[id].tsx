@@ -42,11 +42,9 @@ export default function EventDetailsScreen() {
   const [eventData, setEventData] = useState<Event | null>(null);
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
-  // Kiểm tra quyền: chỉ Manager mới có thể chỉnh sửa
   const isManager = user?.role === UserRole.Manager;
   const isAttendee = user?.role === UserRole.Attendee;
 
-  // ✅ Hàm chọn ảnh cho Manager
   const pickImage = async () => {
     const permissionResult =
       await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -71,23 +69,18 @@ export default function EventDetailsScreen() {
     }
   };
 
-  // ✅ Thêm hàm mua vé cho Attendee
   async function buyTicket() {
     if (!eventData) return;
 
     try {
       setIsLoading(true);
 
-      // ✅ Gọi API tạo payment
       const res = (await Api.post("/payment/momo", {
         eventId: eventData.id,
       })) as any;
 
-      // ✅ Check response structure hợp lý hơn (same as events list)
       if (res.status === "success" && res.url) {
-        // ✅ Check errorCode từ MoMo response
         if (res.url.errorCode === 0 && res.url.payUrl) {
-          // ✅ Hiển thị thông báo trước khi chuyển
           Alert.alert(
             "🎫 Chuyển đến MoMo",
             "Bạn sẽ được chuyển đến MoMo để thanh toán. Sau khi hoàn tất, vui lòng quay về app.",
@@ -100,7 +93,6 @@ export default function EventDetailsScreen() {
                 text: "Tiếp tục",
                 onPress: async () => {
                   try {
-                    // ✅ Mở MoMo app/web
                     const canOpen = await Linking.canOpenURL(res.url.payUrl);
                     if (canOpen) {
                       await Linking.openURL(res.url.payUrl);
@@ -119,18 +111,15 @@ export default function EventDetailsScreen() {
             ]
           );
         } else {
-          // ✅ MoMo trả về lỗi
           const errorMsg = res.url.message || `Lỗi MoMo: ${res.url.errorCode}`;
           Alert.alert("❌ Lỗi thanh toán", errorMsg);
         }
       } else {
-        // ✅ Server response không hợp lệ
         Alert.alert("❌ Lỗi", "Server không thể tạo đơn thanh toán");
       }
     } catch (error: any) {
       console.error("💥 Payment error:", error);
 
-      // ✅ Xử lý các loại lỗi cụ thể
       let errorMessage = "Có lỗi xảy ra khi tạo đơn thanh toán";
 
       if (error.response?.status === 401) {
@@ -148,7 +137,6 @@ export default function EventDetailsScreen() {
       setIsLoading(false);
     }
   }
-  // Tính số vé còn lại
   const ticketsLeft =
     eventData && typeof eventData.maxTickets === "number"
       ? Math.max(0, eventData.maxTickets - eventData.totalTicketsPurchased)
@@ -192,26 +180,25 @@ export default function EventDetailsScreen() {
   async function onSubmitChanges() {
     if (!eventData) return;
 
-    // ✅ Validation
     if (!eventData.name?.trim()) {
-      Alert.alert("❌ Error", "Event name is required");
+      Alert.alert("Error", "Event name is required");
       return;
     }
 
     if (!eventData.location?.trim()) {
-      Alert.alert("❌ Error", "Event location is required");
+      Alert.alert("Error", "Event location is required");
       return;
     }
 
     if (eventData.price < 0) {
-      Alert.alert("❌ Error", "Price must be greater than or equal to 0");
+      Alert.alert("Error", "Price must be greater than or equal to 0");
       return;
     }
 
     try {
       setIsSubmitting(true);
 
-      console.log("📝 Updating event with data:", {
+      console.log("Updating event with data:", {
         name: eventData.name,
         location: eventData.location,
         price: eventData.price,
@@ -219,7 +206,6 @@ export default function EventDetailsScreen() {
         hasNewImage: !!selectedImage,
       });
 
-      // ✅ Nếu có ảnh mới được chọn, sử dụng FormData cho tất cả data
       if (selectedImage) {
         const formData = new FormData();
 
@@ -240,15 +226,12 @@ export default function EventDetailsScreen() {
           type,
         } as any);
 
-        console.log("📤 Sending FormData with image...");
+        console.log("Sending FormData with image...");
 
-        // ✅ Update với ảnh qua PUT /event/:eventId
         await eventService.updateOneWithImage(Number(id), formData);
 
-        console.log("✅ Successfully updated event with image");
-        Alert.alert("🎉 Thành công", "Sự kiện và ảnh đã được cập nhật!");
+        Alert.alert("Success", "Events have been updated with new image");
       } else {
-        // ✅ Không có ảnh mới, chỉ cập nhật thông tin text với JSON
         console.log("📤 Sending JSON data without image...");
 
         await eventService.updateOne(
@@ -261,25 +244,21 @@ export default function EventDetailsScreen() {
           eventData.description
         );
 
-        console.log("✅ Successfully updated event without image");
-        Alert.alert("✅ Thành công", "Thông tin sự kiện đã được cập nhật!");
+        console.log("Successfully updated event without image");
+        Alert.alert("Success", "Event information has been updated!");
       }
 
-      // ✅ Refresh event data to get updated imageUrl
       await fetchEvent();
 
-      // ✅ Clear selected image after successful update
       setSelectedImage(null);
 
       router.back();
     } catch (error) {
       console.error("Update error:", error);
 
-      // ✅ Improved error handling
       let errorMessage = "Failed to update event";
 
       if (error && typeof error === "object") {
-        // Check for network errors
         if ("response" in error && error.response) {
           const response = error.response as any;
           errorMessage =
@@ -290,7 +269,7 @@ export default function EventDetailsScreen() {
         }
       }
 
-      Alert.alert("❌ Error", errorMessage);
+      Alert.alert("Error", errorMessage);
     } finally {
       setIsSubmitting(false);
     }

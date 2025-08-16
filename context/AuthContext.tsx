@@ -1,13 +1,13 @@
 import { userService } from '@/services/user';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { router } from 'expo-router';
 import { User } from '@/types/user';
 
 interface AuthContextProps {
   isLoggedIn: boolean;
   isLoadingAuth: boolean;
-  authenticate: (authMode: "login" | "register", email: string, password: string) => Promise<void>;
+  authenticate: (authMode: "login" | "register", email: string, password: string) => Promise<string | null>;
   logout: VoidFunction;
   user: User | null;
 }
@@ -40,7 +40,7 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
     checkIfLoggedIn();
   }, []);
 
-  async function authenticate(authMode: "login" | "register", email: string, password: string): Promise<void>  {
+  async function authenticate(authMode: "login" | "register", email: string, password: string): Promise<string | null> {
     try {
       setIsLoadingAuth(true);
 
@@ -53,11 +53,13 @@ export function AuthenticationProvider({ children }: React.PropsWithChildren) {
         setUser(response.data.user);
         router.replace({ pathname: "/(authed)/(tabs)/(events)" });
       }
-    } catch (error) {
+    } catch (error: any) {
       setIsLoggedIn(false);
+      return error?.response?.data?.message || "An error occurred during authentication.";
     } finally {
       setIsLoadingAuth(false);
     }
+    return "Wrong email or password";
   }
 
   async function logout() {
