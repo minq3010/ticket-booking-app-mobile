@@ -21,8 +21,6 @@ import {
   ScrollView,
 } from "react-native";
 import { Slider } from "@miblanchard/react-native-slider";
-import { fi } from "date-fns/locale";
-import { styles } from "@/styles/_global";
 import { Button } from "@/components/Button";
 export default function EventsScreen() {
   const { user } = useAuth();
@@ -60,10 +58,8 @@ export default function EventsScreen() {
       setIsLoading(true);
       let response;
       if (query && query.trim()) {
-        // Tìm kiếm với query
         response = await eventService.searchByName(query.trim());
       } else {
-        // Load tất cả events
         response = await eventService.getAll();
       }
       const eventList = Array.isArray(response.data) ? response.data : [];

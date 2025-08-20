@@ -11,11 +11,11 @@ import {
   ScrollView,
   ActivityIndicator,
   Alert,
-  StyleSheet,
-  RefreshControl,
-  BackHandler,
 } from "react-native";
-
+import { useNavigation } from "expo-router";
+import { TabBarIcon } from "@/components/navigation/TabBarIcon";
+import { styles } from "@/styles/_global";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 type Info = {
   avatar: string;
   name: string;
@@ -28,20 +28,18 @@ export default function ProfileScreen() {
   const [edit, setEdit] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const navigation = useNavigation();
 
-  // Form state
+  const isManager = user?.role === "manager";
   const [avatar, setAvatarUrl] = useState("");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
 
-  // Lấy thông tin user
   let mounted = true;
   const fetchUserInfo = async () => {
     try {
       const res = await Api.get(`/user/${user?.id}`);
-      // API trả về dữ liệu ở res.data.data
       const userData = res.data;
-      console.log("User data:", userData);
       if (mounted && userData) {
         setInfo({
           avatar: userData.avatar ?? "",
@@ -100,13 +98,9 @@ export default function ProfileScreen() {
       formData.append("name", name);
       formData.append("phone", phone);
       try {
-        const uploadRes = await Api.put(
-          `/user/${user?.id}`, 
-          formData,
-          {
-            headers: { "Content-Type": "multipart/form-data" },
-          }
-        );
+        const uploadRes = await Api.put(`/user/${user?.id}`, formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         const url = uploadRes.data.url;
         setAvatarUrl(url);
         Alert.alert("Thành công", "Ảnh đã được upload!");
@@ -161,6 +155,21 @@ export default function ProfileScreen() {
     }
   };
 
+  const managerUser = () => {
+    // @ts-ignore - Lỗi TypeScript có thể xuất hiện nhưng vẫn hoạt động trong Expo Router
+    navigation.navigate('(manage)/adminUserManagement');
+  };
+
+  const headerRight = () => {
+    return <TabBarIcon size={30} color={"#3b82f6"} style={{ marginRight: 10 }} name="people" onPress={managerUser} />;
+  }
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerRight: isManager ? () => headerRight() : undefined,
+    });
+  }, [user?.id]);
+
   if (loading) {
     return (
       <View style={styles.centered}>
@@ -173,294 +182,145 @@ export default function ProfileScreen() {
   }
 
   return (
-    <View>
-      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
-        {/* Avatar */}
-        <View style={[styles.avatarSection, { backgroundColor: "#6593ed" }]}>
-          <View style={styles.avatarContainer}>
-            <TouchableOpacity
-              onPress={edit ? handleChangeAvatar : undefined}
-              activeOpacity={edit ? 0.7 : 1}
-            >
-              <Image
-                source={{
-                  uri:
-                    avatar ||
-                    info?.avatar ||
-                    "https://res.cloudinary.com/dwuxlt4vt/image/upload/v1753775085/ev2jqk3owuxcv41o6knc.jpg",
-                }}
-                style={styles.avatar}
-              />
-              {edit && (
-                <View style={styles.editBadge}>
-                  <Text style={{ color: "white", fontWeight: "bold" }}>✏️</Text>
-                </View>
+      <View>
+        <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
+          {/* Avatar */}
+          <View style={[styles.avatarSection, { backgroundColor: "#6593ed" }]}>
+            <View style={styles.avatarContainer}>
+              <TouchableOpacity
+                onPress={edit ? handleChangeAvatar : undefined}
+                activeOpacity={edit ? 0.7 : 1}
+              >
+                <Image
+                  source={{
+                    uri:
+                      avatar ||
+                      info?.avatar ||
+                      "https://res.cloudinary.com/dwuxlt4vt/image/upload/v1753775085/ev2jqk3owuxcv41o6knc.jpg",
+                  }}
+                  style={styles.avatar}
+                />
+                {edit && (
+                  <View style={styles.editBadge}>
+                    <Text style={{ color: "white", fontWeight: "bold" }}>
+                      ✏️
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
+            </View>
+            {edit && <Text style={styles.editText}>Edit Avatar</Text>}
+          </View>
+          {/* Form */}
+          <View style={[styles.formSection, { backgroundColor: "#ffffff" }]}>
+            {/* Name */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Fullname</Text>
+              {edit ? (
+                <TextInput
+                  style={styles.formInput}
+                  value={name}
+                  placeholder="Your full name"
+                  placeholderTextColor="#aaa"
+                  onChangeText={setName}
+                />
+              ) : (
+                <Text style={[styles.formValue, { color: "#3b82f6" }]}>{info?.name}</Text>
               )}
-            </TouchableOpacity>
-          </View>
-          {edit && <Text style={styles.editText}>Edit Avatar</Text>}
-        </View>
-        {/* Form */}
-        <View style={[styles.formSection, { backgroundColor: "#ffffff" }]}>
-          {/* Name */}
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Fullname</Text>
-            {edit ? (
-              <TextInput
-                style={styles.formInput}
-                value={name}
-                placeholder="Your full name"
-                placeholderTextColor="#aaa"
-                onChangeText={setName}
-              />
-            ) : (
-              <Text style={styles.formValue}>{info?.name}</Text>
-            )}
-          </View>
-          {/* Phone */}
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Phone number</Text>
-            {edit ? (
-              <TextInput
-                style={styles.formInput}
-                value={phone}
-                keyboardType="phone-pad"
-                placeholder="Enter phone number"
-                placeholderTextColor="#aaa"
-                onChangeText={setPhone}
-              />
-            ) : (
-              <Text style={styles.formValue}>{info?.phone}</Text>
-            )}
-          </View>
-          {/* Email */}
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Email</Text>
-            <Text style={[styles.formValue, { color: "#666" }]}>
-              {user?.email}
-            </Text>
-          </View>
-          {/* Role */}
-          <View style={styles.formGroup}>
-            <Text style={styles.formLabel}>Role</Text>
-            <Text style={styles.formValue}>{user?.role ?? ""}</Text>
-          </View>
-          {/* Divider */}
-          <View style={styles.divider} />
-          {/* Action Buttons */}
-          <View style={styles.buttonRow}>
-            {edit ? (
-              <>
+            </View>
+            {/* Phone */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Phone number</Text>
+              {edit ? (
+                <TextInput
+                  style={styles.formInput}
+                  value={phone}
+                  keyboardType="phone-pad"
+                  placeholder="Enter phone number"
+                  placeholderTextColor="#aaa"
+                  onChangeText={setPhone}
+                />
+              ) : (
+                <Text style={[styles.formValue, { color: "#3b82f6" }]}>{info?.phone}</Text>
+              )}
+            </View>
+            {/* Email */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Email</Text>
+              <Text style={[styles.formValue, { color: "#666" }]}>
+                {user?.email}
+              </Text>
+            </View>
+            {/* Role */}
+            <View style={styles.formGroup}>
+              <Text style={styles.formLabel}>Role</Text>
+              <Text style={[styles.formValue, { color: "#3b82f6" }]}>{user?.role ?? ""}</Text>
+            </View>
+            {/* Divider */}
+            <View style={styles.divider} />
+            {/* Action Buttons */}
+            <View style={styles.buttonRow}>
+              {edit ? (
+                <>
+                  <TouchableOpacity
+                    style={[
+                      styles.btn,
+                      styles.btnPrimary,
+                      { flex: 1, backgroundColor: "#3b82f6" },
+                    ]}
+                    onPress={handleSave}
+                    disabled={saving}
+                  >
+                    {saving && (
+                      <ActivityIndicator
+                        color="#fff"
+                        style={{ marginRight: 8 }}
+                      />
+                    )}
+                    <Text style={{ color: "white", fontWeight: "600" }}>
+                      {saving ? "Saving ..." : "Save Changes"}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={[styles.btn, styles.btnSecondary]}
+                    onPress={handleCancel}
+                    disabled={saving}
+                  >
+                    <Text style={{ color: "#111", fontWeight: "600" }}>
+                      Cancel
+                    </Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
                 <TouchableOpacity
-                  style={[styles.btn, styles.btnPrimary, { flex: 1, backgroundColor: "#3b82f6" }]}
-                  onPress={handleSave}
-                  disabled={saving}
+                  style={[
+                    styles.btn,
+                    styles.btnPrimary,
+                    { flex: 1, backgroundColor: "#3b82f6" },
+                  ]}
+                  onPress={() => setEdit(true)}
                 >
-                  {saving && (
-                    <ActivityIndicator
-                      color="#fff"
-                      style={{ marginRight: 8 }}
-                    />
-                  )}
                   <Text style={{ color: "white", fontWeight: "600" }}>
-                    {saving ? "Saving ..." : "Save Changes"}
+                    Edit
                   </Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.btn, styles.btnSecondary]}
-                  onPress={handleCancel}
-                  disabled={saving}
-                >
-                  <Text style={{ color: "#111", fontWeight: "600" }}>Cancel</Text>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <TouchableOpacity
-                style={[styles.btn, styles.btnPrimary, { flex: 1, backgroundColor: "#3b82f6" }]}
-                onPress={() => setEdit(true)}
-              >
-                <Text style={{ color: "white", fontWeight: "600" }}>
-                  Edit
-                </Text>
-              </TouchableOpacity>
-            )}
+              )}
+            </View>
+            {/* Divider */}
+            <View style={styles.divider} />
+            {/* Logout */}
+            <TouchableOpacity
+              style={[
+                styles.btn,
+                styles.btnDanger,
+                { flex: 1, backgroundColor: "#ef4444" },
+              ]}
+              onPress={logout}
+            >
+              <Text style={{ color: "#fff", fontWeight: "600" }}>Logout</Text>
+            </TouchableOpacity>
           </View>
-          {/* Divider */}
-          <View style={styles.divider} />
-          {/* Logout */}
-          <TouchableOpacity
-            style={[styles.btn, styles.btnDanger, {flex: 1, backgroundColor: "#ef4444" }]}
-            onPress={logout}
-          >
-            <Text style={{ color: "#fff", fontWeight: "600" }}>
-              Logout
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
-    </View>
+        </ScrollView>
+      </View>
   );
 }
-
-const styles = StyleSheet.create({
-  background: {
-    flex: 1,
-    backgroundColor: "#fff", 
-    alignItems: "center",
-    justifyContent: "center",
-    padding: 20,
-  },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    width: "100%",
-    maxWidth: 400,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 20 },
-    shadowOpacity: 0.13,
-    shadowRadius: 20,
-    elevation: 8,
-    overflow: "hidden",
-    borderWidth: 1,
-    borderColor: "#e5e7eb",
-  },
-  avatarSection: {
-    alignItems: "center",
-    padding: 32,
-    backgroundColor: "#f3f4f6",
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-  },
-  avatarContainer: {
-    position: "relative",
-  },
-  avatar: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
-    borderColor: "#fff",
-    borderWidth: 4,
-    backgroundColor: "#111",
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 8 },
-  },
-  editBadge: {
-    position: "absolute",
-    bottom: 5,
-    right: 5,
-    backgroundColor: "#111",
-    borderRadius: 14,
-    width: 28,
-    height: 28,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#111",
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  editText: {
-    color: "#111",
-    fontSize: 13,
-    marginTop: 10,
-    fontWeight: "500",
-  },
-  formSection: {
-    padding: 24,
-  },
-  formGroup: {
-    marginBottom: 24,
-  },
-  formLabel: {
-    fontSize: 14,
-    fontWeight: "500",
-    color: "#666",
-    marginBottom: 8,
-  },
-  formInput: {
-    width: "100%",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderWidth: 2,
-    borderColor: "#e5e7eb",
-    borderRadius: 12,
-    fontSize: 16,
-    backgroundColor: "#fff",
-    color: "#111",
-  },
-  formValue: {
-    fontSize: 18,
-    fontWeight: "600",
-    color: "#111",
-    paddingVertical: 12,
-  },
-  divider: {
-    height: 1,
-    backgroundColor: "#e5e7eb",
-    marginVertical: 18,
-  },
-  buttonRow: {
-    flexDirection: "row",
-    gap: 12,
-    marginBottom: 16,
-    alignItems: "center",
-  },
-  btn: {
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    fontWeight: "600",
-    fontSize: 16,
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 8,
-    flexDirection: "row",
-    gap: 8,
-  },
-  btnPrimary: {
-    backgroundColor: "#000",
-    borderWidth: 0,
-    shadowColor: "#111",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    shadowOffset: { width: 0, height: 2 },
-  },
-  btnSecondary: {
-    backgroundColor: "#f3f4f6",
-    borderColor: "#e5e7eb",
-    borderWidth: 2,
-  },
-  btnDanger: {
-    backgroundColor: "transparent",
-    borderColor: "#ef4444",
-    borderWidth: 2,
-  },
-  toast: {
-    position: "absolute",
-    top: 20,
-    right: 20,
-    paddingVertical: 16,
-    paddingHorizontal: 24,
-    borderRadius: 12,
-    zIndex: 1000,
-    minWidth: 160,
-    shadowColor: "#000",
-    shadowOpacity: 0.13,
-    shadowRadius: 8,
-    shadowOffset: { width: 0, height: 4 },
-  },
-  toastSuccess: {
-    backgroundColor: "#111",
-  },
-  toastError: {
-    backgroundColor: "#ef4444",
-  },
-  centered: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    backgroundColor: "#fff",
-  },
-});
