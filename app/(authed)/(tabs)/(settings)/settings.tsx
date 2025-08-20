@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
   Alert,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useNavigation } from "expo-router";
 import { styles } from "@/styles/_global";
 
 export default function SettingsIndex() {
@@ -18,13 +18,20 @@ export default function SettingsIndex() {
   const [loading, setLoading] = useState(true);
   const [avatar, setAvatar] = useState("");
   const [name, setName] = useState("");
+  const navigation = useNavigation();
 
   useEffect(() => {
-    // quick local init from user context
+    navigation.setOptions({
+      headerTitleStyle: { color: "#3b82f6" },
+    });
+  }, []);
+
+  useEffect(() => {
     setAvatar(user?.avatar ?? "");
     setName(user?.name ?? "");
     setLoading(false);
   }, [user?.id]);
+
 
   if (loading) {
     return (
@@ -40,15 +47,15 @@ export default function SettingsIndex() {
         <View style={{ alignItems: "center", marginBottom: 24 }}>
           <Image
             source={{ uri: avatar || "https://res.cloudinary.com/dwuxlt4vt/image/upload/v1753775085/ev2jqk3owuxcv41o6knc.jpg" }}
-            style={{ width: 96, height: 96, borderRadius: 48, marginBottom: 12 }}
+            style={{ width: 150, height: 150, borderRadius: 75, marginBottom: 12 }}
           />
-          <Text style={{ fontSize: 18, fontWeight: "700", color: "#111" }}>{name}</Text>
+          <Text style={{ fontSize: 28, fontWeight: "700", color: "#3b82f6" }}>{name}</Text>
           <Text style={{ fontSize: 13, color: "#666", marginTop: 4 }}>{user?.email}</Text>
         </View>
 
         <TouchableOpacity
           style={[styles.btn, { backgroundColor: "#2563eb", paddingVertical: 14, marginBottom: 12 }]}
-          onPress={() => router.push("/(authed)/(screen)/(setting)/profile")}
+          onPress={() => router.push("/(authed)/(tabs)/(settings)/setting/profile")}
         >
           <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>View Profile</Text>
         </TouchableOpacity>
@@ -56,7 +63,7 @@ export default function SettingsIndex() {
         {user?.role === "manager" && (
           <TouchableOpacity
             style={[styles.btn, { backgroundColor: "#0ea5a4", paddingVertical: 14, marginBottom: 12 }]}
-            onPress={() => router.push("/(authed)/(screen)/(setting)/(manage)/adminUserManagement")}
+            onPress={() => router.push("/(authed)/(tabs)/(settings)/setting/adminUserManagement")}
           >
             <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>User Management</Text>
           </TouchableOpacity>

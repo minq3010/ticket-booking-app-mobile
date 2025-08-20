@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
   TouchableOpacity,
@@ -14,6 +13,9 @@ import { useNavigation, useRouter } from "expo-router";
 import { Api } from "@/services/api";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { User } from "@/types/user";
+import { HStack } from "@/components/HStack";
+import { Text } from "@/components/Text";
+import { VStack } from "@/components/VStack";
 
 export default function AdminUserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -25,18 +27,12 @@ export default function AdminUserManagement() {
   useEffect(() => {
     fetchUsers();
     navigation.setOptions({
-      headerShown: true,
-      title: "User Management",
+      headerTitleStyle: { color: "#3b82f6" },
       headerLeft: () => (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <TabBarIcon name="arrow-back" size={24} />
-        </TouchableOpacity>
+        <TabBarIcon color={"#3b82f6"} name="arrow-back" size={24} onPress={() => router.back()} />
       ),
     });
-  }, []);
+  }, [users.length]);
 
   const fetchUsers = async () => {
     try {
@@ -73,7 +69,6 @@ export default function AdminUserManagement() {
   };
 
   const viewUserDetails = (userId: number) => {
-    // use a relative push so expo-router resolves the sibling route
     router.push(`./userDetail?id=${userId}`);
   };
 
@@ -94,6 +89,15 @@ export default function AdminUserManagement() {
         />
       </View>
 
+      <View>
+        <VStack p={15} >
+          <HStack alignItems="center" justifyContent="space-between">
+            <Text fontSize={18} bold color="#2563eb">
+              Total Users: {users.length}
+            </Text>
+          </HStack>
+        </VStack>
+      </View>
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#3b82f6" />
@@ -147,6 +151,37 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     padding: 12,
     fontSize: 16,
+  },
+  statsContainer: {
+    backgroundColor: "white",
+    marginHorizontal: 16,
+    marginTop: 8,
+    borderRadius: 12,
+    padding: 16,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  statsRow: {
+    justifyContent: "space-around",
+    alignItems: "center",
+  },
+  statItem: {
+    alignItems: "center",
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: "bold",
+    color: "#3b82f6",
+    marginBottom: 4,
+  },
+  statLabel: {
+    fontSize: 14,
+    color: "#666",
+    textAlign: "center",
   },
   centered: {
     flex: 1,

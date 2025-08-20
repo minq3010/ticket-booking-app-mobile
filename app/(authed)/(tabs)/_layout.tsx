@@ -48,11 +48,11 @@ export default function TabLayout() {
     },
     {
       showFor: [UserRole.Attendee, UserRole.Manager],
-      name: 'settings',
+      name: '(settings)',
       displayName: 'Settings',
       icon: 'settings',
       options: {
-        headerShown: true,
+        headerShown: false,
       }
     },
   ];

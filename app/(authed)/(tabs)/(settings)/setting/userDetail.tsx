@@ -10,7 +10,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { router, useLocalSearchParams, useNavigation } from "expo-router";
 import { Api } from "@/services/api";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { User } from "@/types/user";
@@ -28,15 +28,9 @@ export default function UserDetailScreen() {
     fetchUser();
 
     navigation.setOptions({
-      headerShown: true,
-      title: "User Details",
+      headerTitleStyle: { color: "#3b82f6" },
       headerLeft: () => (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <TabBarIcon name="arrow-back" size={24} />
-        </TouchableOpacity>
+          <TabBarIcon name="arrow-back" size={24} onPress={() => router.back()} />
       ),
     });
   }, [userId]);

@@ -1,4 +1,5 @@
-import { useState } from "react";
+
+import React, { useState } from "react";
 import { Button } from "@/components/Button";
 import { Divider } from "@/components/Divider";
 import { HStack } from "@/components/HStack";
@@ -8,12 +9,102 @@ import { VStack } from "@/components/VStack";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { useAuth } from "@/context/AuthContext";
 import {
-  Alert,
   KeyboardAvoidingView,
   ScrollView,
   TouchableOpacity,
+  Platform,
 } from "react-native";
 import { globals } from "@/styles/_global";
+
+type LoginFormProps = {
+  authMode: "login" | "register";
+  email: string;
+  setEmail: (email: string) => void;
+  password: string;
+  setPassword: (password: string) => void;
+  isLoadingAuth: boolean;
+  onAuthenticate: () => void;
+  errorMsg?: string | null;
+  backgroundColor?: string;
+};
+
+const LoginForm = React.memo(function LoginForm({
+  authMode,
+  email,
+  setEmail,
+  password,
+  setPassword,
+  isLoadingAuth,
+  onAuthenticate,
+  backgroundColor = "#ffffff",
+  errorMsg,
+}: LoginFormProps) {
+  return (
+    <VStack
+      w={"110%"}
+      gap={25}
+      style={{
+        backgroundColor,
+        borderRadius: 16,
+        padding: 24,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.15,
+        shadowRadius: 12,
+        elevation: 8,
+      }}
+    >
+      {errorMsg ? (
+        <Text
+          style={{
+            color: "red",
+            fontWeight: "bold",
+            marginBottom: 10,
+            textAlign: "center",
+          }}
+        >
+          {errorMsg}
+        </Text>
+      ) : null}
+      <VStack gap={5}>
+        <Text ml={10} fontSize={14} color="gray">
+          Email
+        </Text>
+        <Input
+          value={email}
+          onChangeText={setEmail}
+          placeholder="Email"
+          placeholderTextColor="darkgray"
+          autoCapitalize="none"
+          autoCorrect={false}
+          h={48}
+          p={14}
+        />
+      </VStack>
+
+      <VStack gap={5}>
+        <Text ml={10} fontSize={14} color="gray">
+          Password
+        </Text>
+        <Input
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry
+          placeholder="Password"
+          placeholderTextColor="darkgray"
+          autoCapitalize="none"
+          autoCorrect={false}
+          h={48}
+          p={14}
+        />
+      </VStack>
+
+      <Button isLoading={isLoadingAuth} onPress={onAuthenticate}>
+        {authMode}
+      </Button>
+    </VStack>
+  );
+});
 
 export default function Login() {
   const { authenticate, isLoadingAuth } = useAuth();
@@ -32,103 +123,17 @@ export default function Login() {
     setAuthMode(authMode === "login" ? "register" : "login");
   }
 
-  type LoginFormProps = {
-    authMode: "login" | "register";
-    email: string;
-    setEmail: (email: string) => void;
-    password: string;
-    setPassword: (password: string) => void;
-    isLoadingAuth: boolean;
-    onAuthenticate: () => void;
-    errorMsg?: string | null;
-  };
-
-  function LoginForm({
-    authMode,
-    email,
-    setEmail,
-    password,
-    setPassword,
-    isLoadingAuth,
-    onAuthenticate,
-    backgroundColor = "#ffffff",
-    errorMsg,
-  }: LoginFormProps & { backgroundColor?: string }) {
-    return (
-      <VStack
-        w={"110%"}
-        gap={25}
-        style={{
-          backgroundColor,
-          borderRadius: 16,
-          padding: 24,
-          shadowColor: "#000",
-          shadowOffset: { width: 0, height: 4 },
-          shadowOpacity: 0.15,
-          shadowRadius: 12,
-          elevation: 8,
-        }}
-      >
-        {errorMsg ? (
-          <Text
-            style={{
-              color: "red",
-              fontWeight: "bold",
-              marginBottom: 10,
-              textAlign: "center",
-            }}
-          >
-            {errorMsg}
-          </Text>
-        ) : null}
-        <VStack gap={5}>
-          <Text ml={10} fontSize={14} color="gray">
-            Email
-          </Text>
-          <Input
-            value={email}
-            onChangeText={setEmail}
-            placeholder="Email"
-            placeholderTextColor="darkgray"
-            autoCapitalize="none"
-            autoCorrect={false}
-            h={48}
-            p={14}
-            borderRadius={6}
-          />
-        </VStack>
-
-        <VStack gap={5}>
-          <Text ml={10} fontSize={14} color="gray">
-            Password
-          </Text>
-          <Input
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry
-            placeholder="Password"
-            placeholderTextColor="darkgray"
-            autoCapitalize="none"
-            autoCorrect={false}
-            h={48}
-            p={14}
-            borderRadius={6}
-          />
-        </VStack>
-
-        <Button isLoading={isLoadingAuth} onPress={onAuthenticate}>
-          {authMode}
-        </Button>
-      </VStack>
-    );
-  }
-
   return (
     <KeyboardAvoidingView
-      behavior="padding"
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
       style={[globals.container, { backgroundColor: "#f0f2f5" }]}
+      keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
     >
-      <ScrollView contentContainerStyle={globals.container}>
+      <ScrollView 
+        contentContainerStyle={globals.container}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="none"
+      >
         <VStack
           flex={1}
           justifyContent="center"

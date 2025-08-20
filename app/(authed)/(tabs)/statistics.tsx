@@ -16,9 +16,9 @@ import { Api } from "@/services/api";
 import { BarChart } from "react-native-chart-kit";
 import { styles } from "@/styles/_global";
 import { Event } from "@/types/event";
+import { useNavigation } from "expo-router";
 
 const screenWidth = Dimensions.get("window").width;
-// Loại dữ liệu từ backend Stats API
 type Stats = {
   id: number;
   eventId: number;
@@ -46,6 +46,13 @@ export default function StatisticsScreen() {
   const [selectedEvent, setSelectedEvent] = useState<string>("all");
   const [modalVisible, setModalVisible] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitleStyle: { color: "#3b82f6" },
+    });
+  }, []);
 
   const fetchEvents = async () => {
     try {

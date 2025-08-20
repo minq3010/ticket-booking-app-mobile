@@ -301,16 +301,16 @@ export default function EventDetailsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: isAttendee ? eventData?.name || "Event Details" : "",
-      headerLeft: isAttendee
-        ? () => (
-            <TabBarIcon
-              size={24}
-              name="arrow-back"
-              onPress={() => router.back()}
-            />
-          )
-        : undefined,
+      headerTitle: "Event Details",
+      headerTitleStyle: { color: "#3b82f6" },
+      headerLeft: () => (
+      <TabBarIcon
+        size={24}
+        color={"#3b82f6"}
+        name="arrow-back"
+        onPress={() => router.back()}
+      />
+      ),
       headerRight: isManager ? () => headerRight(onDelete) : undefined,
     });
   }, [navigation, onDelete, isAttendee, isManager, eventData?.name]);
@@ -728,5 +728,5 @@ const styles = StyleSheet.create({
 });
 
 const headerRight = (onPress: VoidFunction) => {
-  return <TabBarIcon size={30} name="trash" onPress={onPress} />;
+  return <TabBarIcon color={"#3b82f6"} size={30} name="trash" onPress={onPress} />;
 };

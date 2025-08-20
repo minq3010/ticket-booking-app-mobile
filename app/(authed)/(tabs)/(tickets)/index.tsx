@@ -40,7 +40,10 @@ export default function TicketScreen() {
   );
 
   useEffect(() => {
-    navigation.setOptions({ headerTitle: "Tickets" });
+    navigation.setOptions({
+      headerTitleStyle: { color: "#3b82f6" },
+      headerTitle: "Tickets",
+    });
   }, [navigation]);
 
   return (
@@ -144,9 +147,7 @@ export default function TicketScreen() {
                   <Text
                     fontSize={20}
                     bold
-                    color={
-                      ticket.entered ? "#dc2626" : "#2563eb"
-                    }
+                    color={ticket.entered ? "#dc2626" : "#2563eb"}
                   >
                     {ticket.entered ? "Used" : "Available"}
                   </Text>

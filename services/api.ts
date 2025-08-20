@@ -7,7 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 //     ? "http://10.0.2.2:26367"
 //     : "http://192.168.1.132:26367"; //(ipconfig getifaddr en0,1,2 )(mạng đt 172.20.10.4)
 //const url = "https://rcwc2n8v-26367.asse.devtunnels.ms";
-const url = "https://bb56c0ee69ba.ngrok-free.app"; // ngrok url
+const url = "https://18bfbb75c2ad.ngrok-free.app"; // ngrok url
 
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 

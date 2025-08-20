@@ -7,12 +7,19 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { useCallback, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { ActivityIndicator, Alert, Vibration } from "react-native";
-import { useRouter } from "expo-router";
+import { useNavigation } from "expo-router";
 import debounce from "lodash.debounce";
 export default function ScanTicketScreen() {
   const [permission, requestPermission] = useCameraPermissions();
+  const navigation = useNavigation();
+
+  useEffect(() => {
+    navigation.setOptions({
+      headerTitleStyle: { color: "#3b82f6" },
+    });
+  }, []);
   const handleScan = async ({ data }: BarcodeScanningResult) => {
     Vibration.vibrate();
     

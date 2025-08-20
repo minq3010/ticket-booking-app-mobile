@@ -14,7 +14,7 @@ import {
   SafeAreaView,
 } from "react-native";
 import { styles } from "@/styles/_global";
-import { useNavigation } from "expo-router";
+import { router, useNavigation } from "expo-router";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 
 type Info = {
@@ -69,14 +69,10 @@ export default function ProfileScreen() {
   }, [user?.id]);
 
   useEffect(() => {
-    // show native header with a back button
     navigation.setOptions({
-      headerShown: true,
-      title: "Profile",
+      headerTitleStyle: { color: "#3b82f6" },
       headerLeft: () => (
-        <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => navigation.goBack()}>
-          <TabBarIcon name="arrow-back" size={24} />
-        </TouchableOpacity>
+        <TabBarIcon color={"#3b82f6"} name="arrow-back" size={24} onPress={() => router.back()} />
       ),
     });
   }, []);

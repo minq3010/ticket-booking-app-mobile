@@ -92,6 +92,7 @@ export default function EventsScreen() {
   useEffect(() => {
     navigation.setOptions({
       headerTitle: "Events",
+      headerTitleStyle: { color: "#3b82f6" },
       headerRight: user?.role === UserRole.Manager ? headerRight : null,
     });
   }, [navigation, user]);
@@ -259,6 +260,30 @@ export default function EventsScreen() {
                   }}
                 >
                   Apply
+                </Text>
+              </Button>
+              <Button
+                onPress={() => setFilterVisible(false)}
+                style={{
+                  backgroundColor: "#de1414",
+                  borderRadius: 20,
+                  paddingVertical: 12,
+                  paddingHorizontal: 24,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginTop: 10,
+                }}
+              >
+                <Text
+                  color="white"
+                  bold
+                  style={{
+                    textAlign: "center",
+                    fontSize: 16,
+                    letterSpacing: 1,
+                  }}
+                >
+                  Cancel
                 </Text>
               </Button>
             </TouchableOpacity>
