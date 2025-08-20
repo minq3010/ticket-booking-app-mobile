@@ -8,9 +8,9 @@ import {
   ActivityIndicator,
   SafeAreaView,
   TextInput,
-  Alert
+  Alert,
 } from "react-native";
-import { useNavigation } from "expo-router";
+import { useNavigation, useRouter } from "expo-router";
 import { Api } from "@/services/api";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { User } from "@/types/user";
@@ -20,15 +20,16 @@ export default function AdminUserManagement() {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const navigation = useNavigation();
+  const router = useRouter();
 
   useEffect(() => {
     fetchUsers();
-    
     navigation.setOptions({
+      headerShown: true,
       title: "User Management",
       headerLeft: () => (
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <TabBarIcon name="arrow-back" size={24} />
@@ -40,13 +41,15 @@ export default function AdminUserManagement() {
   const fetchUsers = async () => {
     try {
       setLoading(true);
-      
+
       const response = await Api.get("/user");
-      
+
       if (response.data && response.data.status === "success") {
         let userData = response.data.data || [];
-        
-        const attendees = userData.filter((user: User) => user.role === "attendee");
+
+        const attendees = userData.filter(
+          (user: User) => user.role === "attendee"
+        );
         setUsers(attendees);
       } else if (response.data) {
         let userData = [];
@@ -55,8 +58,10 @@ export default function AdminUserManagement() {
         } else if (response.data && Array.isArray(response.data)) {
           userData = response.data;
         }
-        
-        const attendees = userData.filter((user: User) => user.role === "attendee");
+
+        const attendees = userData.filter(
+          (user: User) => user.role === "attendee"
+        );
         setUsers(attendees);
       }
     } catch (error) {
@@ -68,13 +73,14 @@ export default function AdminUserManagement() {
   };
 
   const viewUserDetails = (userId: number) => {
-    // @ts-ignore
-    navigation.navigate("(manage)/userDetail", { id: userId });
+    // use a relative push so expo-router resolves the sibling route
+    router.push(`./userDetail?id=${userId}`);
   };
 
-  const filteredUsers = users.filter((user: User) => 
-    user.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    user.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = users.filter(
+    (user: User) =>
+      user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      user.email?.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -98,14 +104,20 @@ export default function AdminUserManagement() {
           data={filteredUsers}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.userCard}
               onPress={() => viewUserDetails(item.id)}
             >
               <View style={styles.userInfo}>
-                <Text style={[styles.userName, { color: "#3b82f6" }]}>{item.name || "No name"}</Text>
-                <Text style={[styles.userEmail, { color: "#666" }]}>{item.email}</Text>
-                <Text style={[styles.userPhone, { color: "#888" }]}>{item.phone || "No phone"}</Text>
+                <Text style={[styles.userName, { color: "#3b82f6" }]}>
+                  {item.name || "No name"}
+                </Text>
+                <Text style={[styles.userEmail, { color: "#666" }]}>
+                  {item.email}
+                </Text>
+                <Text style={[styles.userPhone, { color: "#888" }]}>
+                  {item.phone || "No phone"}
+                </Text>
               </View>
               <TabBarIcon name="chevron-forward" size={20} color="#666" />
             </TouchableOpacity>
@@ -188,5 +200,5 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginLeft: 16,
-  }
+  },
 });

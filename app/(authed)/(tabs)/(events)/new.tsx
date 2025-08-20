@@ -120,7 +120,15 @@ export default function NewEvent() {
   }
 
   useEffect(() => {
-    navigation.setOptions({ headerTitle: "New Event" });
+    navigation.setOptions({
+      headerShown: true,
+      title: "New Event",
+      headerLeft: () => (
+        <TouchableOpacity style={{ marginLeft: 12 }} onPress={() => navigation.goBack()}>
+          <TabBarIcon name="arrow-back" size={24} />
+        </TouchableOpacity>
+      ),
+    });
   }, []);
 
   return (

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -15,7 +15,6 @@ import { Api } from "@/services/api";
 import { TabBarIcon } from "@/components/navigation/TabBarIcon";
 import { User } from "@/types/user";
 
-
 export default function UserDetailScreen() {
   const params = useLocalSearchParams();
   const userId = params.id;
@@ -27,12 +26,13 @@ export default function UserDetailScreen() {
 
   useEffect(() => {
     fetchUser();
-    
+
     navigation.setOptions({
+      headerShown: true,
       title: "User Details",
       headerLeft: () => (
-        <TouchableOpacity 
-          style={styles.backButton} 
+        <TouchableOpacity
+          style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
           <TabBarIcon name="arrow-back" size={24} />
@@ -52,17 +52,18 @@ export default function UserDetailScreen() {
       const ticketRes = await Api.get(`/ticket/user/${userId}`);
       const tickets = Array.isArray(ticketRes.data) ? ticketRes.data : [];
       const ticketCount = tickets.length;
-      
+
       const enteredEventIds = Array.from(
         new Set(
-          tickets.filter((t: any) => t.entered === true).map((t: any) => t.eventId)
+          tickets
+            .filter((t: any) => t.entered === true)
+            .map((t: any) => t.eventId)
         )
       );
       const eventCount = enteredEventIds.length;
 
       setTicketCount(ticketCount);
       setEventCount(eventCount);
-
     } catch (error) {
       console.error("Error fetching user details:", error);
       Alert.alert("Error", "Could not load user details");
@@ -111,7 +112,9 @@ export default function UserDetailScreen() {
         <View style={styles.profileHeader}>
           <Image
             source={{
-              uri: user?.avatar || "https://res.cloudinary.com/dwuxlt4vt/image/upload/v1753775085/ev2jqk3owuxcv41o6knc.jpg",
+              uri:
+                user?.avatar ||
+                "https://res.cloudinary.com/dwuxlt4vt/image/upload/v1753775085/ev2jqk3owuxcv41o6knc.jpg",
             }}
             style={styles.avatar}
           />
@@ -132,17 +135,19 @@ export default function UserDetailScreen() {
 
         <View style={styles.infoSection}>
           <Text style={styles.sectionTitle}>Contact Information</Text>
-          
+
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Phone</Text>
-            <Text style={styles.infoValue}>{user?.phone || "Not provided"}</Text>
+            <Text style={styles.infoValue}>
+              {user?.phone || "Not provided"}
+            </Text>
           </View>
-          
+
           <View style={styles.infoItem}>
             <Text style={styles.infoLabel}>Member Since</Text>
             <Text style={styles.infoValue}>
-              {user?.createdAt 
-                ? new Date(user.createdAt).toLocaleDateString() 
+              {user?.createdAt
+                ? new Date(user.createdAt).toLocaleDateString()
                 : "Unknown"}
             </Text>
           </View>
@@ -270,5 +275,5 @@ const styles = StyleSheet.create({
   },
   backButton: {
     marginLeft: 16,
-  }
+  },
 });

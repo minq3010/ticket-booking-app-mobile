@@ -49,8 +49,8 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Attendee, UserRole.Manager],
       name: 'settings',
-      displayName: 'Your Profile',
-      icon: 'person',
+      displayName: 'Settings',
+      icon: 'settings',
       options: {
         headerShown: true,
       }
