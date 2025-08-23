@@ -301,14 +301,14 @@ export default function EventDetailsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Event Details",
+      headerTitle: eventData?.name || "Event Details",
       headerTitleStyle: { color: "#3b82f6" },
       headerLeft: () => (
       <TabBarIcon
-        size={24}
-        color={"#3b82f6"}
-        name="arrow-back"
-        onPress={() => router.back()}
+      size={24}
+      color={"#3b82f6"}
+      name="arrow-back"
+      onPress={() => router.back()}
       />
       ),
       headerRight: isManager ? () => headerRight(onDelete) : undefined,
