@@ -204,42 +204,42 @@ export default function ProfileScreen() {
                 )}
               </TouchableOpacity>
             </View>
-            {edit && <Text style={styles.editText}>Edit Avatar</Text>}
+            {edit && <Text style={styles.editText}>Chỉnh sửa ảnh đại diện</Text>}
           </View>
 
           {/* Form */}
           <View style={[styles.formSection, { backgroundColor: "#ffffff" }]}>
             {/* Name */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Fullname</Text>
+              <Text style={styles.formLabel}>Họ và tên</Text>
               {edit ? (
                 <TextInput
                   style={styles.formInput}
                   value={name}
-                  placeholder="Your full name"
+                  placeholder="Nhập họ và tên"
                   placeholderTextColor="#aaa"
                   onChangeText={setName}
                 />
               ) : (
-                <Text style={[styles.formValue, { color: "#3b82f6" }]}>
+                <Text style={[styles.formValue, { color: "#3b82f6" }]}> 
                   {info?.name}
                 </Text>
               )}
             </View>
             {/* Phone */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Phone number</Text>
+              <Text style={styles.formLabel}>Số điện thoại</Text>
               {edit ? (
                 <TextInput
                   style={styles.formInput}
                   value={phone}
                   keyboardType="phone-pad"
-                  placeholder="Enter phone number"
+                  placeholder="Nhập số điện thoại"
                   placeholderTextColor="#aaa"
                   onChangeText={setPhone}
                 />
               ) : (
-                <Text style={[styles.formValue, { color: "#3b82f6" }]}>
+                <Text style={[styles.formValue, { color: "#3b82f6" }]}> 
                   {info?.phone}
                 </Text>
               )}
@@ -254,7 +254,7 @@ export default function ProfileScreen() {
             </View>
             {/* Role */}
             <View style={styles.formGroup}>
-              <Text style={styles.formLabel}>Role</Text>
+              <Text style={styles.formLabel}>Vai trò</Text>
               <Text style={[styles.formValue, { color: "#3b82f6" }]}>
                 {user?.role ?? ""}
               </Text>
@@ -281,7 +281,7 @@ export default function ProfileScreen() {
                       />
                     )}
                     <Text style={{ color: "white", fontWeight: "600" }}>
-                      {saving ? "Saving ..." : "Save Changes"}
+                      {saving ? "Đang lưu ..." : "Lưu thay đổi"}
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -290,7 +290,7 @@ export default function ProfileScreen() {
                     disabled={saving}
                   >
                     <Text style={{ color: "#111", fontWeight: "600" }}>
-                      Cancel
+                      Hủy
                     </Text>
                   </TouchableOpacity>
                 </>
@@ -304,7 +304,7 @@ export default function ProfileScreen() {
                   onPress={() => setEdit(true)}
                 >
                   <Text style={{ color: "white", fontWeight: "600" }}>
-                    Edit
+                    Chỉnh sửa
                   </Text>
                 </TouchableOpacity>
               )}

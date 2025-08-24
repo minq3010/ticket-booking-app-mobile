@@ -83,7 +83,7 @@ export default function AdminUserManagement() {
       <View style={styles.searchContainer}>
         <TextInput
           style={styles.searchInput}
-          placeholder="Search by name or email"
+          placeholder="Tìm theo tên hoặc email"
           value={searchTerm}
           onChangeText={setSearchTerm}
         />
@@ -93,7 +93,7 @@ export default function AdminUserManagement() {
         <VStack p={15} >
           <HStack alignItems="center" justifyContent="space-between">
             <Text fontSize={18} bold color="#2563eb">
-              Total Users: {users.length}
+              Tổng số người dùng: {users.length}
             </Text>
           </HStack>
         </VStack>
@@ -101,7 +101,7 @@ export default function AdminUserManagement() {
       {loading ? (
         <View style={styles.centered}>
           <ActivityIndicator size="large" color="#3b82f6" />
-          <Text style={styles.loadingText}>Loading users...</Text>
+          <Text style={styles.loadingText}>Đang tải danh sách người dùng...</Text>
         </View>
       ) : (
         <FlatList
@@ -113,14 +113,14 @@ export default function AdminUserManagement() {
               onPress={() => viewUserDetails(item.id)}
             >
               <View style={styles.userInfo}>
-                <Text style={[styles.userName, { color: "#3b82f6" }]}>
-                  {item.name || "No name"}
+                <Text style={[styles.userName, { color: "#3b82f6" }]}> 
+                  {item.name || "Không có tên"}
                 </Text>
-                <Text style={[styles.userEmail, { color: "#666" }]}>
+                <Text style={[styles.userEmail, { color: "#666" }]}> 
                   {item.email}
                 </Text>
-                <Text style={[styles.userPhone, { color: "#888" }]}>
-                  {item.phone || "No phone"}
+                <Text style={[styles.userPhone, { color: "#888" }]}> 
+                  {item.phone || "Không có số điện thoại"}
                 </Text>
               </View>
               <TabBarIcon name="chevron-forward" size={20} color="#666" />
@@ -128,7 +128,7 @@ export default function AdminUserManagement() {
           )}
           ListEmptyComponent={
             <View style={styles.emptyList}>
-              <Text style={styles.emptyText}>No users found</Text>
+              <Text style={styles.emptyText}>Không tìm thấy người dùng nào</Text>
             </View>
           }
         />

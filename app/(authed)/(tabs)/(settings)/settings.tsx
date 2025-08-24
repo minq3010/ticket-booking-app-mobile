@@ -57,7 +57,7 @@ export default function SettingsIndex() {
           style={[styles.btn, { backgroundColor: "#2563eb", paddingVertical: 14, marginBottom: 12 }]}
           onPress={() => router.push("/(authed)/(tabs)/(settings)/setting/profile")}
         >
-          <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>View Profile</Text>
+          <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>Xem thông tin cá nhân</Text>
         </TouchableOpacity>
 
         {user?.role === "manager" && (
@@ -65,7 +65,7 @@ export default function SettingsIndex() {
             style={[styles.btn, { backgroundColor: "#0ea5a4", paddingVertical: 14, marginBottom: 12 }]}
             onPress={() => router.push("/(authed)/(tabs)/(settings)/setting/adminUserManagement")}
           >
-            <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>User Management</Text>
+            <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>Quản lý người dùng</Text>
           </TouchableOpacity>
         )}
 
@@ -73,16 +73,16 @@ export default function SettingsIndex() {
           style={[styles.btn, { backgroundColor: "#ef4444", paddingVertical: 14 }]}
           onPress={() =>
             Alert.alert(
-              "Confirm Logout",
-              "Are you sure you want to logout?",
+              "Xác nhận đăng xuất",
+              "Bạn có chắc chắn muốn đăng xuất không?",
               [
-                { text: "Cancel", style: "cancel" },
-                { text: "Logout", style: "destructive", onPress: () => logout() },
+                { text: "Hủy", style: "cancel" },
+                { text: "Đăng xuất", style: "destructive", onPress: () => logout() },
               ]
             )
           }
         >
-          <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>Logout</Text>
+          <Text style={{ color: "white", fontWeight: "600", textAlign: "center" }}>Đăng xuất</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
