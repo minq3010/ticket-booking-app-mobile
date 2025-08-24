@@ -10,13 +10,16 @@ import {
   Dimensions,
   Modal,
   FlatList,
+  Pressable,
+  Vibration,
 } from "react-native";
 import { Text } from "@/components/Text";
 import { Api } from "@/services/api";
-import { BarChart } from "react-native-chart-kit";
+import { BarChart, LineChart } from "react-native-chart-kit";
 import { styles } from "@/styles/_global";
 import { Event } from "@/types/event";
 import { useNavigation } from "expo-router";
+import { FontAwesome } from "@expo/vector-icons";
 
 const screenWidth = Dimensions.get("window").width;
 type Stats = {
@@ -37,15 +40,37 @@ type OverallStats = {
   totalRevenue: number;
 };
 
+type MonthlyStats = {
+  month: string;
+  year: number;
+  ticketsSold: number;
+  revenue: number;
+  events: number;
+};
+
 export default function StatisticsScreen() {
   const [stats, setStats] = useState<Stats[]>([]);
   const [overallStats, setOverallStats] = useState<OverallStats | null>(null);
+  const [monthlyStats, setMonthlyStats] = useState<MonthlyStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"overview" | "detail">("overview");
+  const [activeTab, setActiveTab] = useState<"overview" | "detail" | "monthly">("overview");
   const [selectedEvent, setSelectedEvent] = useState<string>("all");
   const [modalVisible, setModalVisible] = useState(false);
   const [events, setEvents] = useState<Event[]>([]);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [yearModalVisible, setYearModalVisible] = useState(false);
+  const [chartTooltip, setChartTooltip] = useState<{
+    visible: boolean;
+    x: number;
+    y: number;
+    data: {
+      month: string;
+      value: number;
+      type: 'tickets' | 'revenue';
+    };
+    isUpperHalf?: boolean;
+  } | null>(null);
   const navigation = useNavigation();
 
   useEffect(() => {
@@ -69,12 +94,51 @@ export default function StatisticsScreen() {
       setEvents([]);
     }
   };
+
+  const generateMonthlyStats = (statsData: Stats[], eventsData: Event[]) => {
+    const monthlyData: { [key: string]: MonthlyStats } = {};
+    
+    for (let i = 1; i <= 12; i++) {
+      const monthKey = `${selectedYear}-${i.toString().padStart(2, '0')}`;
+      monthlyData[monthKey] = {
+        month: i.toString().padStart(2, '0'),
+        year: selectedYear,
+        ticketsSold: 0,
+        revenue: 0,
+        events: 0
+      };
+    }
+    
+    eventsData.forEach(event => {
+      const eventDate = new Date(event.date);
+      if (eventDate.getFullYear() === selectedYear) {
+        const monthKey = `${selectedYear}-${(eventDate.getMonth() + 1).toString().padStart(2, '0')}`;
+        
+        if (monthlyData[monthKey]) {
+          monthlyData[monthKey].events += 1;
+          
+          // Tìm stats tương ứng với event này
+          const eventStats = statsData.find(stat => stat.eventId === event.id);
+          if (eventStats) {
+            monthlyData[monthKey].ticketsSold += eventStats.totalTicketsSold;
+            monthlyData[monthKey].revenue += eventStats.revenue;
+          }
+        }
+      }
+    });
+    
+    // Chuyển object thành array và sắp xếp theo tháng
+    const monthlyArray = Object.values(monthlyData).sort((a, b) => 
+      parseInt(a.month) - parseInt(b.month)
+    );
+    
+    setMonthlyStats(monthlyArray);
+  };
   const fetchStats = async () => {
     try {
       setLoading(true);
       setError(null);
 
-      console.log("🔄 Fetching stats from API...");
       const res = await Api.get("/manager/stat");
 
       let statsData: Stats[] = [];
@@ -88,9 +152,6 @@ export default function StatisticsScreen() {
         statsData = [];
       }
 
-      console.log("📊 Final stats data:", statsData);
-      console.log("📊 Number of stats records:", statsData.length);
-
       setStats(statsData);
       calculateOverallStats(statsData);
     } catch (err: any) {
@@ -102,10 +163,7 @@ export default function StatisticsScreen() {
   };
 
   const calculateOverallStats = (statsData: Stats[]) => {
-    console.log("🔢 Calculating overall stats from data:", statsData);
-
     if (!statsData || statsData.length === 0) {
-      console.log("⚠️  No stats data available, setting zeros");
       setOverallStats({
         totalEvents: 0,
         totalTicketsSold: 0,
@@ -124,7 +182,6 @@ export default function StatisticsScreen() {
       return acc;
     }, {} as Record<number, Stats[]>);
 
-    console.log("📋 Event groups:", eventGroups);
 
     const totalEvents = Object.keys(eventGroups).length;
     let totalTicketsSold = 0;
@@ -133,9 +190,7 @@ export default function StatisticsScreen() {
     let totalRevenue = 0;
 
     Object.values(eventGroups).forEach((eventStats) => {
-      // Chỉ lấy bản ghi duy nhất cho mỗi event
       const stat = eventStats[0];
-      console.log("📊 Processing stat for event:", stat.eventId, stat);
       totalTicketsSold += stat.totalTicketsSold;
       totalTicketsEntered += stat.totalTicketsEntered;
       totalTicketsDeleted += stat.totalTicketsDeleted;
@@ -150,7 +205,6 @@ export default function StatisticsScreen() {
       totalRevenue,
     };
 
-    console.log("✅ Calculated overall stats:", calculatedStats);
     setOverallStats(calculatedStats);
   };
 
@@ -158,6 +212,12 @@ export default function StatisticsScreen() {
     fetchStats();
     fetchEvents();
   }, []);
+
+  useEffect(() => {
+    if (stats.length > 0 && events.length > 0) {
+      generateMonthlyStats(stats, events);
+    }
+  }, [stats, events, selectedYear]);
 
   const getCurrentEventData = () => {
     if (selectedEvent === "all") {
@@ -195,10 +255,10 @@ export default function StatisticsScreen() {
     <View style={styles.header}>
       <VStack gap={4} p={16}>
         <Text fontSize={24} bold color="white">
-          📊 Event Statistics
+          Thống Kê Sự Kiện
         </Text>
         <Text fontSize={14} color="#e6f2ff">
-          Manage and track ticket sales performance
+          Quản lý và theo dõi hiệu suất bán vé
         </Text>
       </VStack>
     </View>
@@ -206,43 +266,63 @@ export default function StatisticsScreen() {
 
   const renderToggleButtons = () => (
     <View style={styles.toggleContainer}>
-      <HStack gap={8} p={16}>
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            activeTab === "overview"
-              ? styles.activeToggle
-              : styles.inactiveToggle,
-          ]}
-          onPress={() => setActiveTab("overview")}
-        >
-          <Text
-            fontSize={14}
-            bold
-            color={activeTab === "overview" ? "white" : "#6b7280"}
+      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <HStack gap={8} p={16}>
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              activeTab === "overview"
+                ? styles.activeToggle
+                : styles.inactiveToggle,
+            ]}
+            onPress={() => setActiveTab("overview")}
           >
-            📈 Overview
-          </Text>
-        </TouchableOpacity>
+            <Text
+              fontSize={14}
+              bold
+              color={activeTab === "overview" ? "white" : "#6b7280"}
+            >
+              Tổng Quan
+            </Text>
+          </TouchableOpacity>
 
-        <TouchableOpacity
-          style={[
-            styles.toggleButton,
-            activeTab === "detail"
-              ? styles.activeToggle
-              : styles.inactiveToggle,
-          ]}
-          onPress={() => setActiveTab("detail")}
-        >
-          <Text
-            fontSize={14}
-            bold
-            color={activeTab === "detail" ? "white" : "#6b7280"}
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              activeTab === "detail"
+                ? styles.activeToggle
+                : styles.inactiveToggle,
+            ]}
+            onPress={() => setActiveTab("detail")}
           >
-            🎫 Details
-          </Text>
-        </TouchableOpacity>
-      </HStack>
+            <Text
+              fontSize={14}
+              bold
+              color={activeTab === "detail" ? "white" : "#6b7280"}
+            >
+              Chi Tiết
+            </Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[
+              styles.toggleButton,
+              activeTab === "monthly"
+                ? styles.activeToggle
+                : styles.inactiveToggle,
+            ]}
+            onPress={() => setActiveTab("monthly")}
+          >
+            <Text
+              fontSize={14}
+              bold
+              color={activeTab === "monthly" ? "white" : "#6b7280"}
+            >
+              Theo Tháng
+            </Text>
+          </TouchableOpacity>
+        </HStack>
+      </ScrollView>
     </View>
   );
 
@@ -255,14 +335,14 @@ export default function StatisticsScreen() {
         <HStack gap={12}>
           <StatsCard
             icon="🎪"
-            title="Total Events"
+            title="Tổng Sự Kiện"
             value={overallStats.totalEvents.toString()}
             bgColor="#dbeafe"
             textColor="#1d4ed8"
           />
           <StatsCard
             icon="🎫"
-            title="Total Tickets Sold"
+            title="Tổng Vé Đã Bán"
             value={overallStats.totalTicketsSold.toLocaleString()}
             bgColor="#dcfce7"
             textColor="#15803d"
@@ -272,14 +352,14 @@ export default function StatisticsScreen() {
         <HStack gap={12}>
           <StatsCard
             icon="✅"
-            title="Total Check-in"
+            title="Tổng Check-in"
             value={overallStats.totalTicketsEntered.toLocaleString()}
             bgColor="#dbeafe"
             textColor="#1d4ed8"
           />
           <StatsCard
             icon="💰"
-            title="Total Revenue"
+            title="Tổng Doanh Thu"
             value={formatCurrencyShort(overallStats.totalRevenue)}
             bgColor="#f3e8ff"
             textColor="#7c3aed"
@@ -289,7 +369,7 @@ export default function StatisticsScreen() {
         {/* Chart Section */}
         <View style={styles.chartContainer}>
           <Text fontSize={18} bold color="#1f2937" mb={12} pl={5}>
-            📊 Overview Charts
+            Biểu Đồ Tổng Quan
           </Text>
           {/* Chart Toggle Buttons */}
           <VStack gap={16}>
@@ -302,7 +382,7 @@ export default function StatisticsScreen() {
                 mb={8}
                 style={{ textAlign: "right" }}
               >
-                📊 Solds
+                Vé Đã Bán
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
@@ -349,7 +429,7 @@ export default function StatisticsScreen() {
                 mb={8}
                 style={{ textAlign: "right" }}
               >
-                ✅ Checked-in
+                Đã Check-in
               </Text>
               <ScrollView horizontal showsHorizontalScrollIndicator={false}>
                 <BarChart
@@ -399,7 +479,7 @@ export default function StatisticsScreen() {
         {/* Event Selector */}
         <View style={styles.selectorContainer}>
           <Text fontSize={14} bold color="#374151" mb={8}>
-            Select Event
+            Chọn Sự Kiện
           </Text>
           <TouchableOpacity
             style={styles.customSelector}
@@ -407,7 +487,7 @@ export default function StatisticsScreen() {
           >
             <Text>
               {selectedEvent === "all"
-                ? "All Events"
+                ? "Tất Cả Sự Kiện"
                 : `${
                     events.find(
                       (event) => event.id.toString() === selectedEvent
@@ -425,7 +505,7 @@ export default function StatisticsScreen() {
               <View style={styles.modalContent}>
                 <FlatList
                   data={[
-                    { id: "all", name: "All Events" },
+                    { id: "all", name: "Tất Cả Sự Kiện" },
                     ...stats.map((stat) => ({
                       id: stat.eventId,
                       name: `${
@@ -468,11 +548,11 @@ export default function StatisticsScreen() {
         <View style={styles.eventStatsContainer}>
           <HStack justifyContent="space-between" alignItems="center" mb={16}>
             <Text fontSize={18} bold color="#1f2937">
-              📋 Event Details
+              📋 Chi Tiết Sự Kiện
             </Text>
             <View style={styles.statusBadge}>
               <Text fontSize={12} bold color="#059669">
-                Ongoing
+                Đang Diễn Ra
               </Text>
             </View>
           </HStack>
@@ -480,24 +560,24 @@ export default function StatisticsScreen() {
           <HStack gap={8} mb={16}>
             <DetailStatsCard
               value={currentEventData.sold.toLocaleString()}
-              label="Sold"
+              label="Đã Bán"
               color="#1d4ed8"
             />
             <DetailStatsCard
               value={currentEventData.checkin.toLocaleString()}
-              label="Checked-in"
+              label="Đã Check-in"
               color="#059669"
             />
             <DetailStatsCard
               value={currentEventData.cancelled.toLocaleString()}
-              label="Cancelled"
+              label="Đã Hủy"
               color="#dc2626"
             />
           </HStack>
 
           <View style={styles.revenueRow}>
             <Text fontSize={14} color="#6b7280">
-              Revenue:
+              Doanh thu:
             </Text>
             <Text fontSize={18} bold color="#7c3aed">
               {formatCurrency(currentEventData.revenue)}
@@ -508,7 +588,7 @@ export default function StatisticsScreen() {
         {/* Event List */}
         <View style={styles.eventListContainer}>
           <Text fontSize={18} bold color="#1f2937" mb={12}>
-            📝 Event List
+            Danh Sách Sự Kiện
           </Text>
           <VStack gap={12}>
             {stats.map((stat, index) => (
@@ -534,12 +614,439 @@ export default function StatisticsScreen() {
     );
   };
 
+  const renderMonthlySection = () => {
+    const availableYears = Array.from(
+      new Set([
+        ...events.map(event => new Date(event.date).getFullYear()),
+        new Date().getFullYear()
+      ])
+    ).sort((a, b) => b - a);
+
+    // Kiểm tra dữ liệu trước khi render chart
+    if (!monthlyStats || monthlyStats.length === 0 || monthlyStats.some(stat => isNaN(stat.ticketsSold) || isNaN(stat.revenue))) {
+      return <Text color="red" style={{ textAlign: 'center', margin: 24 }}>Không có dữ liệu thống kê tháng</Text>;
+    }
+
+    const chartData = {
+      labels: monthlyStats.map(stat => `T${stat.month}`),
+      datasets: [
+        {
+          data: monthlyStats.map(stat => Number(stat.ticketsSold) || 0),
+          color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+          strokeWidth: 3,
+        },
+      ],
+    };
+
+    const revenueChartData = {
+      labels: monthlyStats.map(stat => `T${stat.month}`),
+      datasets: [
+        {
+          data: monthlyStats.map(stat => Number(stat.revenue) / 1000000 || 0), // Chuyển sang triệu VNĐ
+          color: (opacity = 1) => `rgba(34, 197, 94, ${opacity})`,
+          strokeWidth: 3,
+        },
+      ],
+    };
+
+    return (
+      <VStack gap={16} p={16}>
+        {/* Year Selector */}
+        <View style={styles.selectorContainer}>
+          <Text fontSize={14} bold color="#374151" mb={8}>
+            Chọn năm
+          </Text>
+          <TouchableOpacity
+            style={styles.customSelector}
+            onPress={() => setYearModalVisible(true)}
+          >
+            <Text>Năm {selectedYear}</Text>
+          </TouchableOpacity>
+          <Modal
+            visible={yearModalVisible}
+            transparent
+            animationType="slide"
+            onRequestClose={() => setYearModalVisible(false)}
+          >
+            <View style={styles.modalOverlay}>
+              <View style={styles.modalContent}>
+                <FlatList
+                  data={availableYears}
+                  keyExtractor={(item) => item.toString()}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      style={styles.modalItem}
+                      onPress={() => {
+                        setSelectedYear(item);
+                        setYearModalVisible(false);
+                      }}
+                    >
+                      <Text>Năm {item}</Text>
+                    </TouchableOpacity>
+                  )}
+                />
+              </View>
+            </View>
+          </Modal>
+        </View>
+
+        {/* Summary Cards */}
+        <HStack gap={12}>
+          <StatsCard
+            icon="🎫"
+            title="Tổng vé bán"
+            value={monthlyStats.reduce((sum, stat) => sum + stat.ticketsSold, 0).toLocaleString()}
+            bgColor="#dcfce7"
+            textColor="#15803d"
+          />
+          <StatsCard
+            icon="💰"
+            title="Tổng doanh thu"
+            value={formatCurrencyShort(monthlyStats.reduce((sum, stat) => sum + stat.revenue, 0))}
+            bgColor="#f3e8ff"
+            textColor="#7c3aed"
+          />
+        </HStack>
+
+        <HStack gap={12}>
+          <StatsCard
+            icon="🎪"
+            title="Tổng sự kiện"
+            value={monthlyStats.reduce((sum, stat) => sum + stat.events, 0).toString()}
+            bgColor="#dbeafe"
+            textColor="#1d4ed8"
+          />
+          <StatsCard
+            icon="📊"
+            title="TB vé/tháng"
+            value={Math.round(monthlyStats.reduce((sum, stat) => sum + stat.ticketsSold, 0) / 12).toLocaleString()}
+            bgColor="#fef3c7"
+            textColor="#d97706"
+          />
+        </HStack>
+
+        {/* Tickets Chart */}
+        <View style={styles.chartContainer}>
+          <Text fontSize={18} bold color="#1f2937" mb={12}>
+            Vé bán theo tháng - {selectedYear}
+          </Text>
+          <View style={{ position: 'relative', zIndex: 1 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <LineChart
+                data={chartData}
+                width={Math.max(monthlyStats.length * 80, screenWidth - 32)}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#ffffff",
+                  backgroundGradientFrom: "#ffffff",
+                  backgroundGradientTo: "#ffffff",
+                  decimalPlaces: 0,
+                  color: (opacity = 1) => `rgba(59, 130, 246, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: { borderRadius: 16 },
+                  propsForBackgroundLines: {
+                    strokeDasharray: "",
+                    stroke: "#e5e7eb",
+                    strokeWidth: 1,
+                  },
+                  propsForDots: {
+                    r: "6",
+                    strokeWidth: "2",
+                    stroke: "#3b82f6"
+                  },
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+                onDataPointClick={(data) => {
+                  const monthIndex = data.index;
+                  const monthStat = monthlyStats[monthIndex];
+                  
+                  Vibration.vibrate(50);
+                  
+                  const chartHeight = 220;
+                  const isUpperHalf = data.y < chartHeight / 2;
+                  
+                  setChartTooltip({
+                    visible: true,
+                    x: data.x + 8, // offset như trong file index
+                    y: isUpperHalf ? data.y + 40 : data.y - 80,
+                    data: {
+                      month: `Tháng ${monthStat.month}`,
+                      value: monthStat.ticketsSold,
+                      type: 'tickets'
+                    },
+                    isUpperHalf
+                  });
+                  
+                  // Tự động ẩn tooltip sau 4 giây
+                  setTimeout(() => {
+                    setChartTooltip(null);
+                  }, 4000);
+                }}
+              />
+              
+              {/* Tooltip for Tickets Chart */}
+              {chartTooltip && chartTooltip.data.type === 'tickets' && (
+                <View style={{ 
+                  position: 'absolute', 
+                  left: Math.max(10, Math.min(chartTooltip.x - 60, Math.max(screenWidth, monthlyStats.length * 80) - 130)), 
+                  top: chartTooltip.y,
+                  zIndex: 1000,
+                  elevation: 10
+                }}>
+                  <View style={{ 
+                    backgroundColor: '#fff', 
+                    borderRadius: 12, 
+                    padding: 12, 
+                    shadowColor: '#000', 
+                    shadowOpacity: 0.25, 
+                    shadowRadius: 8, 
+                    elevation: 8, 
+                    minWidth: 120, 
+                    alignItems: 'center', 
+                    borderWidth: 2, 
+                    borderColor: '#2563eb' 
+                  }}>
+                    <Pressable 
+                      onPress={() => setChartTooltip(null)} 
+                      style={{ 
+                        position: 'absolute', 
+                        top: -8, 
+                        right: -8, 
+                        backgroundColor: '#ef4444', 
+                        borderRadius: 10, 
+                        width: 20, 
+                        height: 20, 
+                        justifyContent: 'center', 
+                        alignItems: 'center' 
+                      }}
+                    >
+                      <FontAwesome name="close" size={10} color="#fff" />
+                    </Pressable>
+                    
+                    <Text fontSize={13} bold color="#2563eb">
+                      {chartTooltip.data.month} {selectedYear}
+                    </Text>
+                    
+                    <Text fontSize={16} bold color="#059669">
+                      {chartTooltip.data.value.toLocaleString()} vé
+                    </Text>
+                    
+                    {/* Arrow indicator */}
+                    {chartTooltip.isUpperHalf && (
+                      <View style={{ 
+                        position: 'absolute', 
+                        top: -10, 
+                        left: '50%', 
+                        marginLeft: -5, 
+                        width: 0, 
+                        height: 0, 
+                        borderLeftWidth: 5, 
+                        borderRightWidth: 5, 
+                        borderBottomWidth: 10, 
+                        borderLeftColor: 'transparent', 
+                        borderRightColor: 'transparent', 
+                        borderBottomColor: '#2563eb' 
+                      }} />
+                    )}
+                    
+                    {!chartTooltip.isUpperHalf && (
+                      <View style={{ 
+                        position: 'absolute', 
+                        bottom: -10, 
+                        left: '50%', 
+                        marginLeft: -5, 
+                        width: 0, 
+                        height: 0, 
+                        borderLeftWidth: 5, 
+                        borderRightWidth: 5, 
+                        borderTopWidth: 10, 
+                        borderLeftColor: 'transparent', 
+                        borderRightColor: 'transparent', 
+                        borderTopColor: '#2563eb' 
+                      }} />
+                    )}
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Revenue Chart */}
+        <View style={styles.chartContainer}>
+          <Text fontSize={18} bold color="#1f2937" mb={12}>
+            Doanh thu theo tháng - {selectedYear} (triệu VNĐ)
+          </Text>
+          <View style={{ position: 'relative', zIndex: 1 }}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+              <LineChart
+                data={revenueChartData}
+                width={Math.max(monthlyStats.length * 80, screenWidth - 32)}
+                height={220}
+                chartConfig={{
+                  backgroundColor: "#ffffff",
+                  backgroundGradientFrom: "#ffffff",
+                  backgroundGradientTo: "#ffffff",
+                  decimalPlaces: 1,
+                  color: (opacity = 1) => `rgba(34, 197, 94, ${opacity})`,
+                  labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+                  style: { borderRadius: 16 },
+                  propsForBackgroundLines: {
+                    strokeDasharray: "",
+                    stroke: "#e5e7eb",
+                    strokeWidth: 1,
+                  },
+                  propsForDots: {
+                    r: "6",
+                    strokeWidth: "2",
+                    stroke: "#22c55e"
+                  },
+                }}
+                bezier
+                style={{
+                  marginVertical: 8,
+                  borderRadius: 16,
+                }}
+                onDataPointClick={(data) => {
+                  const monthIndex = data.index;
+                  const monthStat = monthlyStats[monthIndex];
+                  
+                  Vibration.vibrate(50);
+                  
+                  const chartHeight = 220;
+                  const isUpperHalf = data.y < chartHeight / 2;
+                  
+                  setChartTooltip({
+                    visible: true,
+                    x: data.x + 8, // offset như trong file index
+                    y: isUpperHalf ? data.y + 40 : data.y - 80,
+                    data: {
+                      month: `Tháng ${monthStat.month}`,
+                      value: monthStat.revenue,
+                      type: 'revenue'
+                    },
+                    isUpperHalf
+                  });
+                  
+                  setTimeout(() => {
+                    setChartTooltip(null);
+                  }, 4000);
+                }}
+              />
+              
+              {/* Tooltip for Revenue Chart */}
+              {chartTooltip && chartTooltip.data.type === 'revenue' && (
+                <View style={{ 
+                  position: 'absolute', 
+                  left: Math.max(10, Math.min(chartTooltip.x - 60, Math.max(screenWidth, monthlyStats.length * 80) - 130)), 
+                  top: chartTooltip.y,
+                  zIndex: 1000,
+                  elevation: 10
+                }}>
+                  <View style={{ 
+                    backgroundColor: '#fff', 
+                    borderRadius: 12, 
+                    padding: 12, 
+                    shadowColor: '#000', 
+                    shadowOpacity: 0.25, 
+                    shadowRadius: 8, 
+                    elevation: 8, 
+                    minWidth: 120, 
+                    alignItems: 'center', 
+                    borderWidth: 2, 
+                    borderColor: '#059669' 
+                  }}>
+                    <Pressable 
+                      onPress={() => setChartTooltip(null)} 
+                      style={{ 
+                        position: 'absolute', 
+                        top: -8, 
+                        right: -8, 
+                        backgroundColor: '#ef4444', 
+                        borderRadius: 10, 
+                        width: 20, 
+                        height: 20, 
+                        justifyContent: 'center', 
+                        alignItems: 'center' 
+                      }}
+                    >
+                      <FontAwesome name="close" size={10} color="#fff" />
+                    </Pressable>
+                    
+                    <Text fontSize={13} bold color="#059669">
+                      {chartTooltip.data.month} {selectedYear}
+                    </Text>
+                    
+                    <Text fontSize={16} bold color="#2563eb">
+                      {formatCurrency(chartTooltip.data.value)}
+                    </Text>
+                    
+                    {/* Arrow indicator */}
+                    {chartTooltip.isUpperHalf && (
+                      <View style={{ 
+                        position: 'absolute', 
+                        top: -10, 
+                        left: '50%', 
+                        marginLeft: -5, 
+                        width: 0, 
+                        height: 0, 
+                        borderLeftWidth: 5, 
+                        borderRightWidth: 5, 
+                        borderBottomWidth: 10, 
+                        borderLeftColor: 'transparent', 
+                        borderRightColor: 'transparent', 
+                        borderBottomColor: '#059669' 
+                      }} />
+                    )}
+                    
+                    {!chartTooltip.isUpperHalf && (
+                      <View style={{ 
+                        position: 'absolute', 
+                        bottom: -10, 
+                        left: '50%', 
+                        marginLeft: -5, 
+                        width: 0, 
+                        height: 0, 
+                        borderLeftWidth: 5, 
+                        borderRightWidth: 5, 
+                        borderTopWidth: 10, 
+                        borderLeftColor: 'transparent', 
+                        borderRightColor: 'transparent', 
+                        borderTopColor: '#059669' 
+                      }} />
+                    )}
+                  </View>
+                </View>
+              )}
+            </ScrollView>
+          </View>
+        </View>
+
+        {/* Monthly Details Table */}
+        <View style={styles.chartContainer}>
+          <Text fontSize={18} bold color="#1f2937" mb={12}>
+            Chi tiết theo tháng
+          </Text>
+          <VStack gap={8}>
+            {monthlyStats.map((stat, index) => (
+              <MonthlyStatsCard key={index} monthStat={stat} />
+            ))}
+          </VStack>
+        </View>
+      </VStack>
+    );
+  };
+
   if (loading && !overallStats) {
     return (
       <View style={styles.centered}>
         <ActivityIndicator size="large" color="#3b82f6" />
         <Text mt={8} color="#6b7280">
-          Loading statistics...
+          Đang tải thống kê...
         </Text>
       </View>
     );
@@ -566,15 +1073,6 @@ export default function StatisticsScreen() {
     );
   }
 
-  // Debug info
-  console.log("🎯 Current state:", {
-    stats: stats.length,
-    overallStats,
-    loading,
-    error,
-    activeTab,
-  });
-
   return (
     <View style={styles.container}>
       {renderHeader()}
@@ -588,35 +1086,11 @@ export default function StatisticsScreen() {
         <View style={{ marginTop: -8 }}>
           {renderToggleButtons()}
 
-          {/* Debug section - remove this in production */}
-          {/* <View
-            style={{
-              padding: 16,
-              backgroundColor: "#f9fafb",
-              margin: 16,
-              borderRadius: 8,
-            }}
-          >
-            <Text fontSize={12} bold color="#374151" mb={4}>
-              🐛 Debug Info:
-            </Text>
-            <Text fontSize={10} color="#6b7280">
-              Stats count: {stats.length}
-            </Text>
-            <Text fontSize={10} color="#6b7280">
-              Overall stats: {overallStats ? "✅" : "❌"}
-            </Text>
-            <Text fontSize={10} color="#6b7280">
-              Loading: {loading ? "✅" : "❌"}
-            </Text>
-            <Text fontSize={10} color="#6b7280">
-              Error: {error || "None"}
-            </Text>
-          </View> */}
-
           {activeTab === "overview"
             ? renderOverviewSection()
-            : renderDetailSection()}
+            : activeTab === "detail"
+            ? renderDetailSection()
+            : renderMonthlySection()}
         </View>
       </ScrollView>
     </View>
@@ -704,7 +1178,7 @@ function EventCard({ event }: { event: any }) {
             {event.sold}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Sold
+            Đã Bán
           </Text>
         </View>
         <View style={{ flex: 1, alignItems: "center" }}>
@@ -712,7 +1186,7 @@ function EventCard({ event }: { event: any }) {
             {event.checkin}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Checked-in
+            Đã Check-in
           </Text>
         </View>
         <View style={{ flex: 1, alignItems: "center" }}>
@@ -720,7 +1194,7 @@ function EventCard({ event }: { event: any }) {
             {event.cancelled}
           </Text>
           <Text fontSize={12} color="#6b7280">
-            Cancelled
+            Đã Hủy
           </Text>
         </View>
       </HStack>
@@ -729,11 +1203,52 @@ function EventCard({ event }: { event: any }) {
 
       <HStack justifyContent="space-between" alignItems="center">
         <Text fontSize={14} color="#6b7280">
-          Revenue:
+          Doanh thu:
         </Text>
         <Text fontSize={16} bold color="#7c3aed">
           {formatCurrency(event.revenue)}
         </Text>
+      </HStack>
+    </View>
+  );
+}
+
+function MonthlyStatsCard({ monthStat }: { monthStat: MonthlyStats }) {
+  const monthNames = [
+    "", "Tháng 1", "Tháng 2", "Tháng 3", "Tháng 4", "Tháng 5", "Tháng 6",
+    "Tháng 7", "Tháng 8", "Tháng 9", "Tháng 10", "Tháng 11", "Tháng 12"
+  ];
+
+  return (
+    <View style={styles.eventCard}>
+      <HStack justifyContent="space-between" alignItems="center" mb={12}>
+        <Text fontSize={16} bold color="#1f2937">
+          {monthNames[parseInt(monthStat.month)]} {monthStat.year}
+        </Text>
+        <View style={[styles.statusBadge, { backgroundColor: monthStat.events > 0 ? "#dcfce7" : "#f3f4f6" }]}>
+          <Text fontSize={12} bold color={monthStat.events > 0 ? "#059669" : "#6b7280"}>
+            {monthStat.events} sự kiện
+          </Text>
+        </View>
+      </HStack>
+
+      <HStack gap={8} mb={8}>
+        <View style={{ flex: 1, alignItems: "center" }}>
+          <Text fontSize={18} color="#1d4ed8" bold>
+            {monthStat.ticketsSold.toLocaleString()}
+          </Text>
+          <Text fontSize={12} color="#6b7280">
+            Vé bán
+          </Text>
+        </View>
+        <View style={{ flex: 1, alignItems: "center" }}>
+          <Text fontSize={18} color="#059669" bold>
+            {formatCurrencyShort(monthStat.revenue)}
+          </Text>
+          <Text fontSize={12} color="#6b7280">
+            Doanh thu
+          </Text>
+        </View>
       </HStack>
     </View>
   );
