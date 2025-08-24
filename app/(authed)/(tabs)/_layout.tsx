@@ -4,7 +4,7 @@ import { UserRole } from '@/types/user';
 import { Ionicons } from '@expo/vector-icons';
 import { Tabs } from 'expo-router';
 import { ComponentProps } from 'react';
-import { Text } from 'react-native';
+import { Platform, Text } from 'react-native';
 
 export default function TabLayout() {
   const { user } = useAuth();
@@ -13,7 +13,7 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Attendee, UserRole.Manager],
       name: '(events)',
-      displayName: 'Events',
+      displayName: 'Sự kiện',
       icon: 'calendar',
       options: {
         headerShown: false
@@ -22,7 +22,7 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Attendee],
       name: '(tickets)',
-      displayName: 'My Tickets',
+      displayName: 'Vé của tôi',
       icon: 'ticket',
       options: {
         headerShown: false
@@ -31,7 +31,7 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Manager],
       name: 'scan-ticket',
-      displayName: 'Scan Ticket',
+      displayName: 'Quét Vé',
       icon: 'scan',
       options: {
         headerShown: true 
@@ -40,7 +40,7 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Manager],
       name: 'statistics',
-      displayName: 'Statistics',
+      displayName: 'Thống kê',
       icon: 'bar-chart',
       options: {
         headerShown: true,
@@ -49,7 +49,7 @@ export default function TabLayout() {
     {
       showFor: [UserRole.Attendee, UserRole.Manager],
       name: '(settings)',
-      displayName: 'Settings',
+      displayName: 'Cài đặt',
       icon: 'settings',
       options: {
         headerShown: false,
@@ -58,29 +58,43 @@ export default function TabLayout() {
   ];
 
   return (
-    <Tabs>
-      { tabs.map(tab => (
-        <Tabs.Screen
-          key={ tab.name }
-          name={ tab.name }
-          options={ {
-            ...tab.options,
-            headerTitle: tab.displayName,
-            href: tab.showFor.includes(user?.role!) ? tab.name : null,
-            tabBarLabel: ({ focused }) => (
-              <Text style={ { color: focused ? "#3b82f6" : "gray", fontSize: 12 } } >
-                { tab.displayName }
-              </Text>
-            ),
-            tabBarIcon: ({ focused }) => (
-              <TabBarIcon
-                name={ tab.icon as ComponentProps<typeof Ionicons>['name'] }
-                color={ focused ? '#3b82f6' : "gray" }
-              />
-            )
-          } }
-        />
-      )) }
+    <Tabs
+      screenOptions={{
+      tabBarStyle: Platform.OS === 'web' ? { display: 'none' } : undefined,
+      }}
+    >
+      {Platform.OS === 'web' && (
+      <Tabs.Screen
+        name="web"
+        options={{
+        headerShown: false,
+        tabBarStyle: { display: 'none' }
+        }}
+      />
+      )}
+      {tabs.map(tab => (
+      <Tabs.Screen
+        key={tab.name}
+        name={tab.name}
+        options={{
+        ...tab.options,
+        headerTitle: tab.displayName,
+        href: tab.showFor.includes(user?.role!) ? tab.name : null,
+        tabBarLabel: ({ focused }) => (
+          <Text style={{ color: focused ? "#3b82f6" : "gray", fontSize: 12 }}>
+          {tab.displayName}
+          </Text>
+        ),
+        tabBarIcon: ({ focused }) => (
+          <TabBarIcon
+          name={tab.icon as ComponentProps<typeof Ionicons>['name']}
+          color={focused ? '#3b82f6' : "gray"}
+          />
+        ),
+        tabBarStyle: Platform.OS === 'web' ? { display: 'none' } : undefined,
+        }}
+      />
+      ))}
     </Tabs>
   );
 }
