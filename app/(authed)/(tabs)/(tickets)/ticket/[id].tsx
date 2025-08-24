@@ -32,21 +32,21 @@ export default function TicketDetailScreen() {
   const onDeleteTicket = useCallback(() => {
     if (!ticket) return;
     Alert.alert(
-      "Confirm Delete",
-      "Contact with this phone number to get refund: 0866007219",
+      "Xác nhận xóa vé",
+      "Liên hệ số điện thoại này để được hoàn tiền: 0866007219",
       [
         {
-          text: "Cancel",
+          text: "Hủy",
           style: "cancel",
         },
         {
-          text: "Delete",
+          text: "Xóa",
           onPress: async () => {
             try {
               await ticketService.deleteOne(ticket.id);
               router.back();
             } catch (error) {
-              Alert.alert("Error", "Failed to delete ticket");
+              Alert.alert("Lỗi", "Xóa vé không thành công");
             }
           },
         },
@@ -88,7 +88,7 @@ export default function TicketDetailScreen() {
         </Text>
         <Text color="#3b82f6" fontSize={20}>{ticket.event.location}</Text>
         <Text fontSize={15} color="gray">
-          {new Date(ticket.event.date).toLocaleString()}
+          {new Date(ticket.event.date).toLocaleString("vi-VN")}
         </Text>
 
         <Image
@@ -122,7 +122,7 @@ export default function TicketDetailScreen() {
         }}
       >
         <Text style={{ color: "white", fontSize: 24 }}>
-          <TabBarIcon name="trash" />
+          <TabBarIcon name="trash" /> 
         </Text>
       </TouchableOpacity>
     </View>
