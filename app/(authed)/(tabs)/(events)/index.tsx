@@ -38,13 +38,13 @@ export default function EventsScreen() {
   }
 
   const quickFilters = [
-    { label: "Free", value: 0 },
-    { label: "Under 100k", value: 100000 },
-    { label: "Under 500k", value: 500000 },
-    { label: "Under 1M", value: 1000000 },
-    { label: "Under 2M", value: 2000000 },
-    { label: "Under 5M", value: 5000000 },
-    { label: "Under 10M", value: 10000000 },
+    { label: "Miễn phí", value: 0 },
+    { label: "Dưới 100k", value: 100000 },
+    { label: "Dưới 500k", value: 500000 },
+    { label: "Dưới 1 triệu", value: 1000000 },
+    { label: "Dưới 2 triệu", value: 2000000 },
+    { label: "Dưới 5 triệu", value: 5000000 },
+    { label: "Dưới 10 triệu", value: 10000000 },
   ];
 
   const filteredEvents = events.filter(
@@ -66,7 +66,7 @@ export default function EventsScreen() {
       setEvents(eventList);
     } catch (error) {
       setEvents([]);
-      Alert.alert("Error", "Failed to fetch events");
+  Alert.alert("Lỗi", "Không thể lấy danh sách sự kiện");
     } finally {
       setIsLoading(false);
     }
@@ -91,7 +91,7 @@ export default function EventsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: "Events",
+      headerTitle: "Sự kiện",
       headerTitleStyle: { color: "#3b82f6" },
       headerRight: user?.role === UserRole.Manager ? headerRight : null,
     });
@@ -105,11 +105,11 @@ export default function EventsScreen() {
       gap={10}
       style={{ backgroundColor: "#eaf2fb" }}
     >
-      {/* Search Bar */}
+  {/* Thanh tìm kiếm */}
       <HStack gap={5} alignItems="center">
         <VStack flex={1}>
           <Input
-            placeholder="Search events..."
+            placeholder="Tìm kiếm sự kiện..."
             value={searchQuery}
             onChangeText={setSearchQuery}
             onSubmitEditing={handleSearch}
@@ -175,7 +175,7 @@ export default function EventsScreen() {
         )}
       </HStack>
 
-      {/* Filter Panel */}
+  {/* Bộ lọc */}
       <Modal visible={filterVisible} transparent animationType="slide">
         <View
           style={{
@@ -187,14 +187,13 @@ export default function EventsScreen() {
         >
           <VStack
             p={20}
-            borderRadius={16}
-            style={{ backgroundColor: "#fff", width: "90%" }}
+            style={{ backgroundColor: "#fff", width: "90%", borderRadius: 16 }}
           >
             <Text fontSize={18} bold mb={12} color="#2563eb">
-              Filter by Price
+              Lọc theo giá
             </Text>
             <Text fontSize={16} bold color="#2563eb" mb={4}>
-              Max Price: {maxPrice.toLocaleString("vi-VN")} VND
+              Giá tối đa: {maxPrice.toLocaleString("vi-VN")} VND
             </Text>
             <View style={{ width: "100%", height: 40 }}>
               <Slider
@@ -259,7 +258,7 @@ export default function EventsScreen() {
                     letterSpacing: 1,
                   }}
                 >
-                  Apply
+                  Áp dụng
                 </Text>
               </Button>
               <Button
@@ -283,7 +282,7 @@ export default function EventsScreen() {
                     letterSpacing: 1,
                   }}
                 >
-                  Cancel
+                  Hủy
                 </Text>
               </Button>
             </TouchableOpacity>
@@ -294,8 +293,8 @@ export default function EventsScreen() {
       <HStack alignItems="center" justifyContent="space-between">
         <Text fontSize={18} bold color="#2563eb">
           {user?.role === UserRole.Manager
-            ? `Events (${filteredEvents.length})`
-            : `Events (${filteredEvents.filter(e => new Date(e.date) >= new Date()).length})`}
+            ? `Danh sách sự kiện (${filteredEvents.length})`
+            : `Sự kiện sắp diễn ra (${filteredEvents.filter(e => new Date(e.date) >= new Date()).length})`}
         </Text>
       </HStack>
 
@@ -326,51 +325,60 @@ export default function EventsScreen() {
                 onPress={() => onGoToEventPage(event.id)}
                 disabled={isPastEvent && user?.role === UserRole.Attendee}
               >
-                <HStack alignItems="center" justifyContent="space-between">
-                  <HStack alignItems="center" style={{ flexWrap: "wrap" }}>
-                    <Text
+                <VStack gap={12}>
+                  {/* Tên sự kiện */}
+                    <HStack alignItems="center" justifyContent="space-between">
+                    <HStack alignItems="center" gap={12} style={{ flex: 1 }}>
+                      <TabBarIcon size={24} name="calendar" color="#3b82f6" />
+                      <Text
                       numberOfLines={2}
-                      adjustsFontSizeToFit
-                      fontSize={20}
-                      bold
-                      color="#2563eb"
-                    >
+                      style={{
+                        flex: 1,
+                        fontSize: 22,
+                        fontWeight: "bold",
+                        color: "#2563eb",
+                      }}
+                      >
                       {event.name}
-                    </Text>
-                    <Text fontSize={26} bold color="#2563eb">
-                      {" "}
-                      <TabBarIcon size={20} name="location" />{" "}
-                    </Text>
-                    <Text fontSize={20} bold color="#2563eb">
+                      </Text>
+                    </HStack>
+                    <TabBarIcon size={20} name="chevron-forward" color="#3b82f6" />
+                    </HStack>
+
+                    {/* Địa điểm */}
+                    <HStack alignItems="center" gap={12}>
+                    <TabBarIcon size={20} name="location" color="#64748b" />
+                    <Text
+                      numberOfLines={1}
+                      style={{
+                      flex: 1,
+                      fontSize: 18,
+                      color: "#64748b",
+                      }}
+                    >
                       {event.location}
                     </Text>
+                    </HStack>
+
+                  {/* Giá vé */}
+                  <HStack alignItems="center" gap={12}>
+                    <TabBarIcon size={20} name="pricetag" color="#ef4444" />
+                    <Text fontSize={18} bold color="#ef4444">
+                      {event.price.toLocaleString("vi-VN", {
+                        style: "currency",
+                        currency: "VND",
+                      })}
+                    </Text>
                   </HStack>
-                  <TabBarIcon
-                    size={24}
-                    name="chevron-forward"
-                    style={{
-                      alignSelf: "center",
-                      position: "absolute",
-                      right: 1,
-                      color: "#2563eb",
-                    }}
-                  />
-                </HStack>
-                <Text fontSize={20} bold color="#ef4444" mt={10}>
-                  Price:{" "}
-                  {event.price.toLocaleString("vi-VN", {
-                    style: "currency",
-                    currency: "VND",
-                  })}
-                </Text>
+                </VStack>
               </TouchableOpacity>
               <Divider />
               <HStack justifyContent="space-between">
                 <Text bold fontSize={16} color="#64748b">
-                  Sold: {event.totalTicketsPurchased}
+                  Đã bán: {event.totalTicketsPurchased}
                 </Text>
                 <Text bold fontSize={16} color="#22c55e">
-                  Entered: {event.totalTicketsEntered}
+                  Đã vào: {event.totalTicketsEntered}
                 </Text>
               </HStack>
               <Text fontSize={13} color="#64748b">

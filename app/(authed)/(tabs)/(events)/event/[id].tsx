@@ -51,8 +51,8 @@ export default function EventDetailsScreen() {
 
     if (permissionResult.granted === false) {
       Alert.alert(
-        "Permission required",
-        "You need to allow access to your photo library!"
+        "Cần quyền truy cập",
+        "Bạn cần cấp quyền truy cập thư viện ảnh!"
       );
       return;
     }
@@ -158,18 +158,18 @@ export default function EventDetailsScreen() {
   const onDelete = useCallback(() => {
     if (!eventData) return;
 
-    Alert.alert("Delete Event", "Are you sure you want to delete this event?", [
-      { text: "Cancel" },
+    Alert.alert("Xóa sự kiện", "Bạn có chắc chắn muốn xóa sự kiện này?", [
+      { text: "Hủy" },
       {
-        text: "Delete",
+        text: "Xóa",
         onPress: async () => {
           try {
             await eventService.deleteOne(Number(id));
             router.back();
           } catch (error: any) {
             const errorMessage =
-              error?.response?.data?.message || "Failed to delete event";
-            Alert.alert("Error", errorMessage);
+              error?.response?.data?.message || "Xóa sự kiện thất bại";
+            Alert.alert("Lỗi", errorMessage);
           }
         },
         style: "destructive",
@@ -181,17 +181,17 @@ export default function EventDetailsScreen() {
     if (!eventData) return;
 
     if (!eventData.name?.trim()) {
-      Alert.alert("Error", "Event name is required");
+      Alert.alert("Lỗi", "Tên sự kiện là bắt buộc");
       return;
     }
 
     if (!eventData.location?.trim()) {
-      Alert.alert("Error", "Event location is required");
+      Alert.alert("Lỗi", "Địa điểm sự kiện là bắt buộc");
       return;
     }
 
     if (eventData.price < 0) {
-      Alert.alert("Error", "Price must be greater than or equal to 0");
+      Alert.alert("Lỗi", "Giá vé phải lớn hơn hoặc bằng 0");
       return;
     }
 
@@ -230,7 +230,7 @@ export default function EventDetailsScreen() {
 
         await eventService.updateOneWithImage(Number(id), formData);
 
-        Alert.alert("Success", "Events have been updated with new image");
+        Alert.alert("Thành công", "Sự kiện đã được cập nhật kèm hình ảnh mới");
       } else {
         console.log("📤 Sending JSON data without image...");
 
@@ -245,7 +245,7 @@ export default function EventDetailsScreen() {
         );
 
         console.log("Successfully updated event without image");
-        Alert.alert("Success", "Event information has been updated!");
+        Alert.alert("Thành công", "Thông tin sự kiện đã được cập nhật!");
       }
 
       await fetchEvent();
@@ -256,20 +256,20 @@ export default function EventDetailsScreen() {
     } catch (error) {
       console.error("Update error:", error);
 
-      let errorMessage = "Failed to update event";
+      let errorMessage = "Cập nhật sự kiện thất bại";
 
       if (error && typeof error === "object") {
         if ("response" in error && error.response) {
           const response = error.response as any;
           errorMessage =
-            response.data?.message || `Server error: ${response.status}`;
+            response.data?.message || `Lỗi server: ${response.status}`;
           console.error("Server response:", response.data);
         } else if ("message" in error) {
           errorMessage = (error as any).message;
         }
       }
 
-      Alert.alert("Error", errorMessage);
+      Alert.alert("Lỗi", errorMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -301,7 +301,7 @@ export default function EventDetailsScreen() {
 
   useEffect(() => {
     navigation.setOptions({
-      headerTitle: eventData?.name || "Event Details",
+      headerTitle: eventData?.name || "Chi tiết sự kiện",
       headerTitleStyle: { color: "#3b82f6" },
       headerLeft: () => (
       <TabBarIcon
@@ -360,7 +360,7 @@ export default function EventDetailsScreen() {
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Location
+                    Địa điểm
                   </Text>
                   <Text fontSize={16} color="#000" style={styles.infoValue}>
                     {eventData.location}
@@ -374,7 +374,7 @@ export default function EventDetailsScreen() {
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Time
+                    Thời gian
                   </Text>
                   <Text fontSize={16} color="#000" style={styles.infoValue}>
                     {format(
@@ -392,7 +392,7 @@ export default function EventDetailsScreen() {
                 </VStack>
                 <VStack flex={1}>
                   <Text fontSize={12} color="#666" style={styles.infoLabel}>
-                    Price
+                    Giá vé
                   </Text>
                   <Text
                     fontSize={18}
@@ -413,7 +413,7 @@ export default function EventDetailsScreen() {
             {eventData.description && (
               <VStack mt={24} style={styles.descriptionSection}>
                 <Text fontSize={16} bold color="#000" mb={12}>
-                  Description
+                  Mô tả
                 </Text>
                 <Text fontSize={14} color="#333" style={styles.descriptionText}>
                   {eventData.description}
@@ -428,11 +428,10 @@ export default function EventDetailsScreen() {
                   {eventData.totalTicketsPurchased}
                 </Text>
                 <Text fontSize={12} color="#666" mt={4}>
-                  Tickets sold
+                  Đã bán
                 </Text>
                 <Text fontSize={14} color="#2E7D32" mt={2}>
-                  {eventData.maxTickets - eventData.totalTicketsPurchased} tickets
-                  remaining
+                  Còn lại {eventData.maxTickets - eventData.totalTicketsPurchased} vé
                 </Text>
               </VStack>
               <VStack style={styles.statDivider} />
@@ -441,7 +440,7 @@ export default function EventDetailsScreen() {
                   {eventData.totalTicketsEntered}
                 </Text>
                 <Text fontSize={12} color="#666" mt={4}>
-                  Tickets checked-in
+                  Đã check-in
                 </Text>
               </VStack>
             </HStack>
@@ -458,10 +457,10 @@ export default function EventDetailsScreen() {
             >
               <Text fontSize={16} bold color="#fff">
                 {ticketsLeft === 0
-                  ? "Sold out"
+                  ? "Hết vé"
                   : isLoading
-                  ? "Processing..."
-                  : "🎫 Buy Ticket Now"}
+                  ? "Đang xử lý..."
+                  : "🎫 Mua vé ngay"}
               </Text>
             </Button>
           </VStack>
@@ -475,7 +474,7 @@ export default function EventDetailsScreen() {
             {/* ✅ Image Upload Section */}
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Event Image
+                Hình ảnh sự kiện
               </Text>
               <TouchableOpacity
                 onPress={pickImage}
@@ -494,7 +493,7 @@ export default function EventDetailsScreen() {
                 ) : (
                   <VStack alignItems="center" gap={10}>
                     <TabBarIcon size={40} name="camera" color="gray" />
-                    <Text color="gray">Tap to select image</Text>
+                    <Text color="gray">Nhấn để chọn hình ảnh</Text>
                   </VStack>
                 )}
               </TouchableOpacity>
@@ -504,7 +503,7 @@ export default function EventDetailsScreen() {
                     color="red"
                     style={{ textAlign: "center", marginTop: 10 }}
                   >
-                    {selectedImage ? "Remove New Image" : "Change Image"}
+                    {selectedImage ? "Xóa ảnh mới" : "Đổi ảnh"}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -512,12 +511,12 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Name
+                Tên sự kiện
               </Text>
               <Input
                 value={eventData?.name}
                 onChangeText={(value) => updateField("name", value)}
-                placeholder="Name"
+                placeholder="Nhập tên sự kiện"
                 placeholderTextColor="darkgray"
                 h={48}
                 p={14}
@@ -526,12 +525,12 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Location
+                Địa điểm
               </Text>
               <Input
                 value={eventData?.location}
                 onChangeText={(value) => updateField("location", value)}
-                placeholder="Location"
+                placeholder="Nhập địa điểm"
                 placeholderTextColor="darkgray"
                 h={48}
                 p={14}
@@ -540,12 +539,12 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Description
+                Mô tả
               </Text>
               <Input
                 value={eventData?.description}
                 onChangeText={(value) => updateField("description", value)}
-                placeholder="Description"
+                placeholder="Nhập mô tả"
                 placeholderTextColor="darkgray"
                 multiline
                 numberOfLines={4}
@@ -556,12 +555,12 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Price
+                Giá vé
               </Text>
               <Input
                 value={eventData?.price?.toString()}
                 onChangeText={(value) => updateField("price", value)}
-                placeholder="Price"
+                placeholder="Nhập giá vé"
                 placeholderTextColor="darkgray"
                 keyboardType="numeric"
                 h={48}
@@ -571,12 +570,12 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Quantity
+                Số lượng vé
               </Text>
               <Input
                 value={eventData?.maxTickets?.toString()}
                 onChangeText={(value) => updateField("maxTickets", value)}
-                placeholder="Max Tickets"
+                placeholder="Nhập số lượng vé tối đa"
                 placeholderTextColor="darkgray"
                 keyboardType="numeric"
                 h={48}
@@ -586,7 +585,7 @@ export default function EventDetailsScreen() {
 
             <VStack gap={5}>
               <Text ml={10} fontSize={14} color="gray">
-                Date
+                Ngày diễn ra
               </Text>
               <DateTimePicker
                 onChange={(date) => updateField("date", date || new Date())}
@@ -600,7 +599,7 @@ export default function EventDetailsScreen() {
               disabled={isSubmitting}
               onPress={onSubmitChanges}
             >
-              Save Changes
+              Lưu thay đổi
             </Button>
           </VStack>
         </ScrollView>
