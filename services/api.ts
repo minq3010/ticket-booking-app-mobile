@@ -2,12 +2,7 @@ import { Platform } from "react-native";
 import axios, { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-// const url =
-//   Platform.OS === "android" 
-//     ? "http://10.0.2.2:26367"
-//     : "http://192.168.1.132:26367"; //(ipconfig getifaddr en0,1,2 )(mạng đt 172.20.10.4)
-//const url = "https://rcwc2n8v-26367.asse.devtunnels.ms";
-const url = "https://18bfbb75c2ad.ngrok-free.app"; // ngrok url
+const url = "http://100.119.135.84:8080"; 
 
 const Api: AxiosInstance = axios.create({ baseURL: url + "/api" });
 
